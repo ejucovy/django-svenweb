@@ -22,3 +22,11 @@ def site_home(request):
     site = request.site
 
     return dict(site=site)
+
+
+@allow_http("GET")
+@rendered_with("sites/site/page-index.html")
+def page_index(request, subpath_id):
+    site = request.site
+
+    return dict(site=site, path=subpath_id)
