@@ -1,0 +1,16 @@
+<html>
+
+<body>
+<div id="topnav">
+{% if request.user and request.site %}
+Logged in as {{request.user.username}}.
+Viewing site {{request.site.name}}.
+<a href="?svenweb.unset_site">Return to list of sites?</a>
+{% endif %}
+</div>
+
+{% block content %}
+
+{% endblock %}
+</body>
+</html>

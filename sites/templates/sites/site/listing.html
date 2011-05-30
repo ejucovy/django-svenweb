@@ -1,0 +1,6 @@
+{% load repo %}
+<ul>
+{% for subpath in site|get_contents:path %}
+<li>{{subpath}}</li>
+{% endfor %}
+</ul>

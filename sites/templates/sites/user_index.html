@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Your Sites</h1>
+<ul>
+  {% for site in sites %}
+  <li>
+    <a href="{{site.switch_context}}">{{site.name}}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+<h1>Create a New Site</h1>
+<form method="POST">
+  {% csrf_token %}
+  <input type="text" name="name"></input>
+  <input type="submit" />
+</form>
+{% endblock %}
