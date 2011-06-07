@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{path}}</h1>
+
+<form method="POST" action="{{form_url}}">
+  {% csrf_token %}
+  Path of the page to create: <input type="text" name="path" />
+  <input type="submit" />
+</form>
+
+<h2>Existing pages in this directory</h2>
+<ul>
+{% for subpath in subpaths %}
+<li><a href="/.index/{{subpath}}">{{subpath}}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}

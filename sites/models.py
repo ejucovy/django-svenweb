@@ -43,6 +43,10 @@ class Wiki(models.Model):
         return ('page_edit', [subpath])
 
     @models.permalink
+    def page_create_url(self, subpath="/"):
+        return ('page_create', [subpath])
+
+    @models.permalink
     def directory_index_url(self, subpath="/"):
         return ('page_index', [subpath])
 

@@ -57,6 +57,27 @@ def page_view(request, subpath):
     return HttpResponse(contents, mimetype=mimetype)
 
 @allow_http("GET", "POST")
+@rendered_with("sites/site/page-create.html")
+def page_create(request, subpath):
+    site = request.site
+
+    if request.method == "POST":
+        path = request.POST['path']
+        path = subpath.rstrip('/') + '/' + path.strip('/')
+        return redirect(site.page_edit_url(path))
+
+    try:
+        subpaths = site.get_contents(subpath)
+    except sven.NotADirectory:
+        return redirect(site.page_view_url(subpath))
+    except sven.NoSuchResource:
+        return redirect(site.page_edit_url(subpath))
+
+    # @@todo: maybe check for user-supplied index page?
+    return dict(site=site, path=subpath, subpaths=subpaths,
+                form_url=site.page_create_url(subpath))
+
+@allow_http("GET", "POST")
 @rendered_with("sites/site/page-edit.html")
 def page_edit(request, subpath):
     site = request.site
