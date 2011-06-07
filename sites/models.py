@@ -34,6 +34,14 @@ class Wiki(models.Model):
     def site_home_url(self):
         return ('site_home', [])
 
+    @models.permalink
+    def page_view_url(self, subpath="/"):
+        return ('page_view', [subpath])
+
+    @models.permalink
+    def directory_index_url(self, subpath="/"):
+        return ('page_index', [subpath])
+
     @property
     def repo_path(self):
         path = settings.SVENWEB_REPO_PATH
@@ -57,3 +65,7 @@ class Wiki(models.Model):
         for page in repo.ls(path):
             paths.append(page['href'])
         return paths
+
+    def get_page(self, path='/'):
+        repo = BzrAccess(self.repo_path)
+        return repo.read(path)

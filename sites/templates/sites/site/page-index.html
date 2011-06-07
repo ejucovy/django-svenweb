@@ -1,11 +1,10 @@
 {% extends "base.html" %}
-{% load repo %}
 
 {% block content %}
 <h1>{{path}}</h1>
 
 <ul>
-{% for subpath in site|get_contents:path %}
+{% for subpath in subpaths %}
 <li><a href="/.index/{{subpath}}">{{subpath}}</a></li>
 {% endfor %}
 </ul>
