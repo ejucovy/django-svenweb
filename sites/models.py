@@ -39,6 +39,10 @@ class Wiki(models.Model):
         return ('page_view', [subpath])
 
     @models.permalink
+    def page_edit_url(self, subpath="/"):
+        return ('page_edit', [subpath])
+
+    @models.permalink
     def directory_index_url(self, subpath="/"):
         return ('page_index', [subpath])
 
@@ -69,3 +73,7 @@ class Wiki(models.Model):
     def get_page(self, path='/'):
         repo = BzrAccess(self.repo_path)
         return repo.read(path)
+
+    def write_page(self, path, contents):
+        repo = BzrAccess(self.repo_path)
+        return repo.write(path, contents)

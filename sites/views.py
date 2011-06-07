@@ -36,7 +36,10 @@ def page_index(request, subpath):
         subpaths = site.get_contents(subpath)
     except sven.NotADirectory:
         return redirect(site.page_view_url(subpath))
+    except sven.NoSuchResource:
+        return redirect(site.page_edit_url(subpath))
 
+    # @@todo: maybe check for user-supplied index page?
     return dict(site=site, path=subpath, subpaths=subpaths)
 
 @allow_http("GET")
@@ -47,6 +50,31 @@ def page_view(request, subpath):
         contents = site.get_page(subpath)
     except sven.NotAFile:
         return redirect(site.directory_index_url(subpath))
+    except sven.NoSuchResource:
+        return redirect(site.page_edit_url(subpath))
 
     mimetype = mimetypes.guess_type(subpath)[0]
     return HttpResponse(contents, mimetype=mimetype)
+
+@allow_http("GET", "POST")
+@rendered_with("sites/site/page-edit.html")
+def page_edit(request, subpath):
+    site = request.site
+
+    if request.method == "POST":
+        contents = request.POST['contents']
+        site.write_page(subpath, contents)
+        return redirect(site.page_view_url(subpath))
+
+    try:
+        contents = site.get_page(subpath)
+    except sven.NoSuchResource:  # this is fine, we can edit a new file
+        contents = ""
+    except sven.NotAFile:  # this is not fine, we can't edit a directory
+        # @@todo: maybe check for user-supplied index page?
+        return redirect(site.directory_index_url(subpath))
+
+    # @@todo: dispatch to different editors based on mimetype
+
+    return dict(contents=contents, path=subpath,
+                form_url=site.page_edit_url(subpath))

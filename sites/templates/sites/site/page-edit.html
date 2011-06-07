@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{{path}}</h1>
+
+<form method="POST" action="{{form_url}}">
+  {% csrf_token %}
+  <textarea name="contents">{{contents}}</textarea>
+  <input type="submit" />
+</form>
+{% endblock %}
