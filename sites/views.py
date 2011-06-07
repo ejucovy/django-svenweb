@@ -26,6 +26,77 @@ def site_home(request):
 
     return dict(site=site)
 
+@allow_http("GET")
+def site_setup_github_mirror(request):
+    site = request.site
+
+    import subprocess
+    import os
+    import tempfile
+    import shutil
+
+    curdir = os.getcwd()
+
+    checkout_path = tempfile.mkdtemp()
+    os.chdir(checkout_path)
+
+    subprocess.call(["bzr", "co", site.repo_path, "."])
+
+    subprocess.call(["git", "init"])
+    subprocess.call(["git", "remote", "add", "github",
+                     "git@github.com:socialplanning-sites/%s.git" % site.name])
+
+    gitignore = open(".gitignore", 'w')
+    gitignore.write(".bzr")
+    gitignore.close()
+
+    subprocess.call(["git", "add", "."])
+    subprocess.call(["git", "commit", "-a", "-m", "pushing to github"])
+    subprocess.call(["git", "branch", "gh-pages"])
+    subprocess.call(["git", "checkout", "gh-pages"])
+    subprocess.call(["git", "push", "github", "gh-pages"])
+
+    os.chdir(curdir)
+    shutil.rmtree(checkout_path)
+    return HttpResponse("ok")
+
+@allow_http("GET")
+def site_export(request):
+    site = request.site
+
+    import subprocess
+    import os
+    import tempfile
+    import shutil
+    import glob
+    curdir = os.getcwd()
+
+    checkout_path = tempfile.mkdtemp()
+    os.chdir(checkout_path)
+
+    subprocess.call(["git", "clone", "-b", "gh-pages",
+                     "git@github.com:socialplanning-sites/%s.git" % site.name,
+                     "."])
+
+    gitfiles = glob.glob(".*")
+    for file in os.listdir(checkout_path):
+        if file in gitfiles:
+            continue
+        if os.path.isfile(file):
+            os.remove(file)
+        elif os.path.isdir(file):
+            shutil.rmtree(file)
+
+    subprocess.call(["bzr", "co", site.repo_path, "."])
+    subprocess.call(["git", "commit", "-a", 
+                     "-m", "pushing to github"])
+    subprocess.call(["git", "push"])
+
+    os.chdir(curdir)
+    shutil.rmtree(checkout_path)
+
+    return HttpResponse("ok")
+
 
 @allow_http("GET")
 @rendered_with("sites/site/page-index.html")
