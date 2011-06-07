@@ -64,6 +64,8 @@ def page_create(request, subpath):
     if request.method == "POST":
         path = request.POST['path']
         path = subpath.rstrip('/') + '/' + path.strip('/')
+
+        # @@todo: do something else if the page already exists, i guess?
         return redirect(site.page_edit_url(path))
 
     try:
