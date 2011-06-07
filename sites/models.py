@@ -30,6 +30,10 @@ class Wiki(models.Model):
     def switch_context(self):
         return "?%s=%s" % (SET_KEY, self.pk)
 
+    @models.permalink
+    def site_home_url(self):
+        return ('site_home', [])
+
     @property
     def repo_path(self):
         path = settings.SVENWEB_REPO_PATH
