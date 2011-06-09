@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import sys
+sys.path.insert(0, "..")
 from django.core.management import execute_manager
 import imp
 try:
