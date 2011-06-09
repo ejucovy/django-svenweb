@@ -1,4 +1,4 @@
 Django
 djangohelpers
-sven
+-e git+git@github.com:socialplanning/sven.git#egg=sven
 bzr
