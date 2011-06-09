@@ -17,7 +17,7 @@ def home(request):
     site = Wiki(name=request.POST['name'])
     site.save()
     site.users.add(request.user)
-    return HttpResponseRedirect(".")
+    return redirect(".")
 
 @allow_http("GET")
 @rendered_with("sites/site/home.html")
