@@ -128,6 +128,17 @@ def deploy_to_github(request):
 
     return redirect("/")
 
+@allow_http("GET")
+@rendered_with("sites/site/page-history.html")
+def page_history(request, subpath):
+    site = request.site
+
+    try:
+        history = site.get_history(subpath)
+    except sven.NoSuchResource:
+        return redirect(site.page_edit_url(subpath))
+        
+    return dict(site=site, history=history)
 
 @allow_http("GET")
 @rendered_with("sites/site/page-index.html")

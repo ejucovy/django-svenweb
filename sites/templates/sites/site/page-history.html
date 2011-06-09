@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>History: {{path}}</h1>
+
+<ol>
+  {% for item in history %}
+  <li>{{item.fields.author}}
+    edited <a href="{{site.page_view_url}}{{item.href}}">{{item.href}}</a>
+    on {{item.fields.timestamp}}.</li>
+  {% endfor %}
+</ol>
+
+{% endblock %}

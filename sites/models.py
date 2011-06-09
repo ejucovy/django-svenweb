@@ -87,7 +87,7 @@ class Wiki(models.Model):
         return ('site_home', [])
 
     @models.permalink
-    def page_view_url(self, subpath="/"):
+    def page_view_url(self, subpath=""):
         return ('page_view', [subpath])
 
     @models.permalink
@@ -95,11 +95,11 @@ class Wiki(models.Model):
         return ('page_edit', [subpath])
 
     @models.permalink
-    def page_create_url(self, subpath="/"):
+    def page_create_url(self, subpath=""):
         return ('page_create', [subpath])
 
     @models.permalink
-    def directory_index_url(self, subpath="/"):
+    def directory_index_url(self, subpath=""):
         return ('page_index', [subpath])
 
     @property
@@ -133,3 +133,13 @@ class Wiki(models.Model):
     def write_page(self, path, contents):
         repo = BzrAccess(self.repo_path)
         return repo.write(path, contents)
+
+    def get_history(self, path='/'):
+        repo = BzrAccess(self.repo_path)
+        contents = repo.log(path)
+        for obj in contents:
+            timestamp = obj['fields']['timestamp']
+            from wsgiref.handlers import format_date_time
+            obj['fields']['timestamp'] = \
+                format_date_time(timestamp)
+        return contents
