@@ -5,6 +5,9 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
+    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    url(r'^admin/', include(admin.site.urls)),
+
     url(r'^.home/$', 'svenweb.sites.views.site_home', name='site_home'),
     url(r'^$', 'svenweb.sites.views.home', name='home'),
 
@@ -16,6 +19,4 @@ urlpatterns = patterns(
     url(r'^.create/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_create', name='page_create'),
     url(r'^.edit/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_edit', name='page_edit'),
     url(r'^(?P<subpath>.*)/*$', 'svenweb.sites.views.page_view', name='page_view'),
-    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
-    url(r'^admin/', include(admin.site.urls)),
 )
