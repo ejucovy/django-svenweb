@@ -3,9 +3,18 @@
 {% block content %}
 <h1>{{path}}</h1>
 
-<form method="POST" action="{{form_url}}">
+<h1>Enter the page content</h1>
+<form method="POST" action="{{form_url}}" name="edit_form">
   {% csrf_token %}
   <textarea name="contents">{{contents}}</textarea>
   <input type="submit" />
+</form>
+
+<h1>Or upload a file to this location</h1>
+<form method="post" action="{{form_url}}" name="upload_form" enctype="multipart/form-data"> 
+  {% csrf_token %}
+  <input type="file" name="file"/>
+  <input type="hidden" name="file" value="file" />
+  <input type="submit" value="upload"/>
 </form>
 {% endblock %}

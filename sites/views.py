@@ -156,7 +156,11 @@ def page_edit(request, subpath):
     site = request.site
 
     if request.method == "POST":
-        contents = request.POST['contents']
+        if 'file' in request.POST:
+            file = request.FILES['file']
+            contents = file.read()
+        else:
+            contents = request.POST['contents']
         site.write_page(subpath, contents)
         return redirect(site.page_view_url(subpath))
 
