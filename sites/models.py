@@ -1,9 +1,11 @@
+from ConfigParser import RawConfigParser, NoOptionError, NoSectionError
 from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 import os
 import subprocess
 from sven.bzr import BzrAccess
+from StringIO import StringIO
 
 SESSION_KEY = 'svenweb.sites.site'
 UNSET_KEY = 'svenweb.unset_site'
@@ -15,10 +17,60 @@ def _create_repo(path):
     if result != 0:
         raise RuntimeError("error creating bzr repo %s: exit code %s" % (path, result))
     
+class _NoDefault(object):
+    pass
+NoDefault = _NoDefault()
+del _NoDefault
+
 class Wiki(models.Model):
     name = models.TextField()
     users = models.ManyToManyField(User)
     config = models.TextField()
+
+    def set_options(self, kwargs):
+        if not self.config:
+            self.config = "[options]"
+        config = RawConfigParser()
+        fp = StringIO(self.config)
+        config.readfp(fp)
+
+        for key, val in kwargs.items():
+            config.set("options", key, val)
+
+        fp = StringIO()
+        config.write(fp)
+        fp.seek(0)
+        self.config = fp.read()
+        self.save()
+
+    def get_option(self, key, default=NoDefault, asbool=False):
+        config = RawConfigParser()
+        fp = StringIO(self.config)
+
+        config.readfp(fp)
+        try:
+            value = config.get("options", key)
+        except (NoOptionError, NoSectionError):
+            if default is NoDefault:
+                raise
+            return default
+
+        if not asbool:
+            return value.strip()
+
+        value = value.lower()
+        if value in ("1", "true", "t", "yes", "y", "on"):
+            return True
+        elif value in ("0", "false", "f", "no", "n", "off"):
+            return False
+        else:
+            raise TypeError("Cannot convert to bool: %s" % value)
+
+    def custom_domain(self):
+        return self.get_option("custom_domain", "")
+
+    def github_repo(self):
+        return self.get_option("github_repo", "")
 
     def viewable(self, request):
         try:

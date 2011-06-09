@@ -26,8 +26,22 @@ def site_home(request):
 
     return dict(site=site)
 
-@allow_http("GET")
-def site_setup_github_mirror(request):
+@allow_http("GET", "POST")
+@rendered_with("sites/site/deploy.html")
+def deploy(request):
+    site = request.site
+    
+    if request.method == "POST":
+        options = {'custom_domain': request.POST.get("custom_domain", ''),
+                   'github_repo': request.POST.get("github_repo", ''),
+                   }
+        site.set_options(options)
+        return redirect(".")
+
+    return dict(site=site)
+
+@allow_http("POST")
+def deploy_to_github_initial(request):
     site = request.site
 
     import subprocess
@@ -44,13 +58,20 @@ def site_setup_github_mirror(request):
 
     subprocess.call(["git", "init"])
     subprocess.call(["git", "remote", "add", "github",
-                     "git@github.com:socialplanning-sites/%s.git" % site.name])
+                     site.github_repo()])
 
     gitignore = open(".gitignore", 'w')
     gitignore.write(".bzr")
     gitignore.close()
 
+    if site.custom_domain():
+        gitcname = open("CNAME", 'w')
+        gitcname.write(site.custom_domain())
+        gitcname.close()
+
     subprocess.call(["git", "add", "."])
+    subprocess.call(["git", "add", ".gitignore"])
+
     subprocess.call(["git", "commit", "-a", "-m", "pushing to github"])
     subprocess.call(["git", "branch", "gh-pages"])
     subprocess.call(["git", "checkout", "gh-pages"])
@@ -58,10 +79,10 @@ def site_setup_github_mirror(request):
 
     os.chdir(curdir)
     shutil.rmtree(checkout_path)
-    return HttpResponse("ok")
+    return redirect("/")
 
-@allow_http("GET")
-def site_export(request):
+@allow_http("POST")
+def deploy_to_github(request):
     site = request.site
 
     import subprocess
@@ -75,7 +96,7 @@ def site_export(request):
     os.chdir(checkout_path)
 
     subprocess.call(["git", "clone", "-b", "gh-pages",
-                     "git@github.com:socialplanning-sites/%s.git" % site.name,
+                     site.github_repo(),
                      "."])
 
     gitfiles = glob.glob(".*")
@@ -88,14 +109,24 @@ def site_export(request):
             shutil.rmtree(file)
 
     subprocess.call(["bzr", "co", site.repo_path, "."])
-    subprocess.call(["git", "commit", "-a", 
+
+    if site.custom_domain():
+        gitcname = open("CNAME", 'w')
+        gitcname.write(site.custom_domain())
+        gitcname.close()
+    elif os.path.exists("CNAME"):
+        os.unlink("CNAME")
+        subprocess.call(["git", "rm", "CNAME"])
+
+    subprocess.call(["git", "add", "."])
+    subprocess.call(["git", "commit", 
                      "-m", "pushing to github"])
     subprocess.call(["git", "push"])
 
     os.chdir(curdir)
     shutil.rmtree(checkout_path)
 
-    return HttpResponse("ok")
+    return redirect("/")
 
 
 @allow_http("GET")
