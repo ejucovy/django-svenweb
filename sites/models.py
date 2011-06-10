@@ -102,6 +102,10 @@ class Wiki(models.Model):
     def directory_index_url(self, subpath=""):
         return ('page_index', [subpath])
 
+    @models.permalink
+    def history_url(self, subpath=""):
+        return ('page_history', [subpath])
+
     @property
     def repo_path(self):
         path = settings.SVENWEB_REPO_PATH
