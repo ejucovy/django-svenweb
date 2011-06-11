@@ -29,7 +29,6 @@ class OpenCoreBackend(ModelBackend):
         if resp.status != 200:
             return
 
-        import pdb; pdb.set_trace()
         user = None
         username = self.clean_username(username)
 
