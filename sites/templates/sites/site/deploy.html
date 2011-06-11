@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Configure deployment: {{site.name}}</h1>
+
+<p>
+  You can deploy a static export of your site to Github Pages.
+  This will create a git repository with a gh-pages branch only,
+  hosted at Github.  Whenever you redeploy your site, all changes
+  since your last deployment will be committed and pushed to that
+  repository in a single batch.  You must create the repo manually
+  at Github; you should create it and then leave it empty.
+</p>
+
+<p>
+  You can optionally configure a domain name that your site should
+  be served at.  You must own the domain, and must configure the DNS manually, 
+  per the instructions <a href="http://pages.github.com/#custom_domains">here</a>.
+  The CNAME file in your repository will be automatically created for you;
+  you only need to configure the settings with your DNS host.
+</p>
+
+<h2>Deployment settings</h2>
+<form method="POST" action=".">
+  {% csrf_token %}
+  <p>
+    Custom Domain (FQDN; leave blank for no custom DNS): 
+    <input type="text" name="custom_domain" value="{{site.custom_domain}}"/>
+  </p>
+  <p>
+    Github Repo (full path; leave blank for no deployments to Github): 
+    <input type="text" name="github_repo" value="{{site.github_repo}}"/>
+  </p>
+  <input type="submit" />
+</form>
+
+<form method="POST" action="./github/init/">
+  {% csrf_token %}
+  <input type="submit" value="Initialize deployment" />
+</form>
+<form method="POST" action="./github/push/">
+  {% csrf_token %}
+  <input type="submit" value="Manually redeploy" />
+</form>
+{% endblock %}

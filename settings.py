@@ -9,10 +9,13 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+import os
+here = os.path.abspath(".")
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'svenweb',                      # Or path to database file if using sqlite3.
+        'NAME': here + '/svenweb',              # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -158,4 +161,4 @@ LOGGING = {
 }
 
 ANONYMOUS_PATHS = ['/accounts']
-SVENWEB_REPO_PATH = 'repos'
+SVENWEB_REPO_PATH = here + '/repos'
