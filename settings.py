@@ -105,6 +105,12 @@ MIDDLEWARE_CLASSES = (
     'svenweb.sites.middleware.SiteContextMiddleware',
 )
 
+OPENCORE_ROOT_URL = "http://localhost:10001/openplans/"
+
+AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
+                           'svenweb.auth.backends.OpenCoreBackend',
+                           )
+
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
     "django.contrib.auth.context_processors.auth",
