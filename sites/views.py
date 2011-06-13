@@ -172,7 +172,8 @@ def deploy_to_github_initial(request):
             _captured = capture.read()
 
             if ("Permission denied" in _captured or
-                "Permission to %s.git denied" % site.github_repo() in _captured):
+                "Permission to %s.git denied" % site.github_repo() in _captured or
+                "Could not resolve hostname" in _captured): # @@todo: this last one belongs elsewhere
                 
                 os.chdir(curdir)
                 shutil.rmtree(checkout_path)

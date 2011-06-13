@@ -223,8 +223,32 @@ class UserProfile(models.Model):
     github_username = models.TextField()
     github_api_token = models.TextField()
 
-    def generate_github_key(self):
-        pass
+    _ssh_config_template = """# Client user (%(user)s)
+Host github-%(user)s
+  HostName github.com
+  User git
+  IdentityFile %(basedir)s%(user)s/id_rsa"""
+
+    def maybe_generate_github_key(self):
+        user = self.user.username
+        basedir = settings.GITHUB_SSH_DIR.rstrip('/') + '/'
+
+        config = self._ssh_config_template % locals()
+
+        file = open(os.path.join(basedir, 'config'))
+        config_contents = file.read()
+        file.close()
+
+        if config not in config_contents:
+            with open(os.path.join(basedir, 'config'), 'a') as file:
+                print >> file, config
+
+        keyfile = os.path.join(settings.GITHUB_SSH_DIR, self.user.username, "id_rsa.pub")
+        if not os.path.exists(keyfile):
+            if not os.path.exists(os.path.join(settings.GITHUB_SSH_DIR, self.user.username)):
+                os.makedirs(os.path.join(settings.GITHUB_SSH_DIR, self.user.username))
+            subprocess.call(["ssh-keygen", "-t", "rsa",  "-N", '',
+                             "-f", os.path.join(basedir, user, "id_rsa")])
 
     def register_github_key(self):
         from github2.client import Github
@@ -233,6 +257,9 @@ class UserProfile(models.Model):
                         api_token=self.github_api_token)
         import os
         keyfile = os.path.join(settings.GITHUB_SSH_DIR, self.user.username, "id_rsa.pub")
+        
+        self.maybe_generate_github_key()
+
         with open(keyfile) as keyfile:
             pubkey = keyfile.read().strip()
         resp = github.users.make_request(
