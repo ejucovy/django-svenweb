@@ -211,13 +211,29 @@ class GithubSite(object):
         try:
             repo = github.repos.create(repo)
         except RuntimeError, exc:
-            if "401" in exc.args[0]:
+            if "401" in exc.args[0]:  # todo: not fine-grained enough to identify auth failure
                 return False
             raise
         return True
+
+from django.conf import settings
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User)
     github_username = models.TextField()
     github_api_token = models.TextField()
 
+    def register_github_key(self):
+        from github2.client import Github
+        github = Github(requests_per_second=1,
+                        username=self.github_username,
+                        api_token=self.github_api_token)
+        with open(settings.GITHUB_SSH_PUBKEY) as keyfile:
+            pubkey = keyfile.read()
+        resp = github.users.make_request("key", "add", method="POST", post_data={'title': "wiki.socialplanning.org", 'key': pubkey})
+        # error-check
+        for key in resp['public_keys']:
+            if key['title'] == 'wiki.socialplanning.org' and key['key'] == pubkey:
+                return True
+        # @@todo: diagnose?
+        return False

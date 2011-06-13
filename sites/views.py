@@ -54,11 +54,16 @@ def user_account(request):
     if request.method == "POST":
         redirect_to = request.POST.get('redirect_to', '.')
 
-        username = request.POST['github_username']
-        token = request.POST['github_api_token']
-        profile.github_username = username
-        profile.github_api_token = token
-        profile.save()
+        if 'ssh_key' in request.POST:
+            if not profile.register_github_key():
+                messages.error(request, "missingsshkey")
+                return redirect(".")
+        else:
+            username = request.POST['github_username']
+            token = request.POST['github_api_token']
+            profile.github_username = username
+            profile.github_api_token = token
+            profile.save()
 
         return redirect(redirect_to)
 
@@ -75,6 +80,12 @@ def user_account(request):
             message = ("To create Github Repos, I need your "
                        "Github username and API token. "
                        "Please provide those, and then try again.")
+            redirect_to = request.site.deploy_dashboard_url()
+        if 'missingsshkey' in msg.message:
+            message = ("To work with your Github Repos, I need to "
+                       "register my SSH public key with your account. "
+                       "Make sure your username and API token are set, "
+                       "and then click \"Register SSH Key\".  Thanks!")
             redirect_to = request.site.deploy_dashboard_url()
 
     return {
@@ -150,7 +161,19 @@ def deploy_to_github_initial(request):
 
     subprocess.call(["git", "branch", "gh-pages"])
     subprocess.call(["git", "checkout", "gh-pages"])
-    subprocess.call(["git", "push", "github", "gh-pages"])
+    import tempfile
+    with tempfile.TemporaryFile() as capture:
+        ret = subprocess.call(["git", "push", "github", "gh-pages"], stdout=capture, stderr=subprocess.STDOUT)
+        if ret != 0:
+            capture.seek(0)
+            if "Permission to %s.git denied" % site.github_repo() in capture.read():
+
+                os.chdir(curdir)
+                shutil.rmtree(checkout_path)
+
+                messages.error(request, "missingsshkey")
+                # @@todo: reverse urlconf
+                return redirect("/.home/account/")
 
     os.chdir(curdir)
     shutil.rmtree(checkout_path)
