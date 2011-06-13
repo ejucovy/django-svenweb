@@ -4,6 +4,24 @@ from django.contrib import messages
 import mimetypes
 from sven import exc as sven
 from svenweb.sites.models import Wiki, UserProfile
+from django.conf import settings
+from restclient import POST
+
+def oauth(request):
+    if 'start' in request.GET:
+        return redirect("https://github.com/login/oauth/authorize?scope=public_repo&client_id=%s" %
+                        settings.GITHUB_CLIENT_ID)
+    elif request.method == "GET":
+        code = request.GET['code']
+        params = {'client_id': settings.GITHUB_CLIENT_ID,
+                  'client_secret': settings.GITHUB_SECRET,
+                  'code': code}
+        resp, content = POST("https://github.com/login/oauth/access_token", params, async=False, resp=True)
+        for item in content.split("&"):
+            if item.split("=")[0] == "access_token":
+                token = item.split("=")[1]
+                request.session['github_oauth_token'] = token
+        return redirect("/")
 
 @allow_http("GET", "POST")
 @rendered_with("sites/user_index.html")
@@ -89,13 +107,13 @@ def create_github_repo(request):
         messages.error(request, "noprofile")
         # @@todo: reverse urlconf
         return redirect("/.home/account/")
-
+    
     username, token = profile.github_username, profile.github_api_token
     if not username or not token:
         messages.error(request, "noprofile")
         # @@todo: reverse urlconf
         return redirect("/.home/account/")
-        
+
     repo = site.github_site()
     if not repo.create_repo(username, token):
         messages.error(request, "failedauth")

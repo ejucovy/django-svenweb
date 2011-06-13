@@ -8,6 +8,8 @@ urlpatterns = patterns(
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'^admin/', include(admin.site.urls)),
 
+    url(r'^.oauth/$', 'svenweb.sites.views.oauth',),
+
     url(r'^.home/$', 'svenweb.sites.views.site_home', name='site_home'),
     url(r'^.home/account/$', 'svenweb.sites.views.user_account', 
         name='user_account'),
