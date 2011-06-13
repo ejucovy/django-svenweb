@@ -1,6 +1,21 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script type="text/javascript">
+  $(window).load(function() {
+    $(".help").each(function() {
+      $(this).css("display", "inline");
+      $("<img/>").attr("src", "/static/images/help.png")
+        .appendTo(this);
+      if( $(this).attr("href")[0] == "#" ) {
+        $(this).colorbox({inline: true});
+      } else {
+        $(this).colorbox();
+      }
+    });
+  });
+</script>
+
 <h1>Configure deployment: {{site.name}}</h1>
 
 <p>
@@ -24,12 +39,17 @@
 <form method="POST" action=".">
   {% csrf_token %}
   <p>
-    Custom Domain (FQDN; leave blank for no custom DNS): 
-    <input type="text" name="custom_domain" value="{{site.custom_domain}}"/>
+    <a class="help" href="#fqdn-help"
+       title="Enter the fully-qualified domain name. No http:// prefix."></a>
+    Custom Domain (leave blank for no custom DNS):
+    <input size="100" type="text" name="custom_domain" value="{{site.custom_domain}}"/>
   </p>
   <p>
-    Github Repo (full path; leave blank for no deployments to Github): 
-    <input type="text" name="github_repo" value="{{site.github_repo}}"/>
+    <a class="help" 
+       href="/static/images/github-url.png" 
+       title="Copy & paste the full path from your Github repo. Make sure you select the 'SSH' URL."></a>
+    Github Repo (leave blank for no deployments to Github):
+    <input size="100" type="text" name="github_repo" value="{{site.github_repo}}"/>
   </p>
   <input type="submit" />
 </form>
@@ -42,4 +62,10 @@
   {% csrf_token %}
   <input type="submit" value="Manually redeploy" />
 </form>
+
+<div style="display: none;">
+  <div id="fqdn-help">
+    Examples: 'somanywhales.com'; 'www.somanywhales.com'; or 'my.site.somanywhales.com'.
+  </div>
+</div>
 {% endblock %}
