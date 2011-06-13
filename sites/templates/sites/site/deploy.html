@@ -1,20 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script type="text/javascript">
-  $(window).load(function() {
-    $(".help").each(function() {
-      $(this).css("display", "inline");
-      $("<img/>").attr("src", "/static/images/help.png")
-        .appendTo(this);
-      if( $(this).attr("href")[0] == "#" ) {
-        $(this).colorbox({inline: true});
-      } else {
-        $(this).colorbox();
-      }
-    });
-  });
-</script>
 
 <h1>Configure deployment: {{site.name}}</h1>
 
@@ -54,18 +40,40 @@
   <input type="submit" />
 </form>
 
-<form method="POST" action="./github/init/">
-  {% csrf_token %}
-  <input type="submit" value="Initialize deployment" />
-</form>
-<form method="POST" action="./github/push/">
-  {% csrf_token %}
-  <input type="submit" value="Manually redeploy" />
-</form>
-
 <div style="display: none;">
   <div id="fqdn-help">
     Examples: 'somanywhales.com'; 'www.somanywhales.com'; or 'my.site.somanywhales.com'.
   </div>
 </div>
+
+<h1>Deployment Status</h1>
+{% if not site.github_repo %}
+You have not yet configured a Github Repo for your site.
+{% else %}
+{% if not site.github_site.repo_exists %}
+Your site's Github Repo has not yet been created.
+You can create it yourself from Github, 
+or I can do it for you if you push this button:
+<form method="POST" action="./github/create/">
+  {% csrf_token %}
+  <input type="submit" value="Create Github Repo" />
+</form>
+{% else %}
+{% if not site.github_site.ghpages_exists %}
+Your site's Github Repo exists, but has not been initialized.
+I can do it for you if you push this button:
+<form method="POST" action="./github/init/">
+  {% csrf_token %}
+  <input type="submit" value="Initialize deployment" />
+</form>
+{% else %}
+Congratulations, your site's Github Repo is ready for deployments.
+<form method="POST" action="./github/push/">
+  {% csrf_token %}
+  <input type="submit" value="Manually redeploy" />
+</form>
+{% endif %}
+{% endif %}
+{% endif %}
+
 {% endblock %}

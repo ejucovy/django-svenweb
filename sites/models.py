@@ -72,6 +72,9 @@ class Wiki(models.Model):
     def github_repo(self):
         return self.get_option("github_repo", "")
 
+    def github_site(self):
+        return GithubSite(self)
+
     def viewable(self, request):
         try:
             user = self.users.get(pk=request.user.pk)
@@ -105,6 +108,10 @@ class Wiki(models.Model):
     @models.permalink
     def history_url(self, subpath=""):
         return ('page_history', [subpath])
+
+    @models.permalink
+    def deploy_dashboard_url(self):
+        return ('site_deploy', [])
 
     @property
     def repo_path(self):
@@ -147,3 +154,60 @@ class Wiki(models.Model):
             obj['fields']['timestamp'] = \
                 format_date_time(timestamp)
         return contents
+
+class GithubSite(object):
+    """
+    Adapts Wiki objects
+    """
+    def __init__(self, wiki):
+        self.wiki = wiki
+
+    def repo(self):
+        repo = self.wiki.github_repo()
+        assert "/" in repo
+        return repo
+
+    def push_url(self):
+        return "git@github.com:%s.git" % self.repo()
+
+    def repo_exists(self):
+        from github2.client import Github
+        github = Github(requests_per_second=1)
+        try:
+            repo = github.repos.show(self.repo())
+        except RuntimeError:
+            return False
+        return True
+
+    def ghpages_exists(self):
+        from github2.client import Github
+        github = Github(requests_per_second=1)
+        try:
+            branches = github.repos.branches(self.repo())
+        except RuntimeError:
+            return False
+        return 'gh-pages' in branches
+
+    def create_repo(self, username, token):
+        """
+        Returns True if creation succeeds.
+        Returns False if user is unauthorized.
+        Raises underlying exception otherwise.
+        """
+        assert not self.repo_exists()
+        from github2.client import Github
+        github = Github(requests_per_second=1,
+                        username=username, api_token=token)
+        try:
+            repo = github.repos.create(self.repo())
+        except RuntimeError, exc:
+            if "401" in exc.args[0]:
+                return False
+            raise
+        return True
+
+class UserProfile(models.Model):
+    user = models.ForeignKey(User)
+    github_username = models.TextField()
+    github_api_token = models.TextField()
+

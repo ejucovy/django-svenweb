@@ -2,7 +2,7 @@ from djangohelpers.lib import allow_http, rendered_with
 from django.http import HttpResponse, HttpResponseRedirect as redirect
 import mimetypes
 from sven import exc as sven
-from svenweb.sites.models import Wiki
+from svenweb.sites.models import Wiki, UserProfile
 
 @allow_http("GET", "POST")
 @rendered_with("sites/user_index.html")
@@ -27,6 +27,13 @@ def site_home(request):
     return dict(site=site)
 
 @allow_http("GET", "POST")
+@rendered_with("sites/user_account.html")
+def user_account(request):
+    user = request.user
+    profile = UserProfile.objects.get_or_create(user=user)
+    return {'profile': profile}
+
+@allow_http("GET", "POST")
 @rendered_with("sites/site/deploy.html")
 def deploy(request):
     site = request.site
@@ -41,6 +48,26 @@ def deploy(request):
     return dict(site=site)
 
 @allow_http("POST")
+def create_github_repo(request):
+    site = request.site
+    user = request.user
+    try:
+        profile = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        # @@todo: flash message
+        # @@todo: reverse urlconf
+        return redirect("/.home/account/")
+
+    repo = site.github_site()
+    if not repo.create_repo(profile.github_username,
+                            profile.github_api_token):
+        # @@todo: flash message
+        # @@todo: reverse urlconf
+        return redirect("/.home/account/")
+        
+    return redirect(site.deploy_dashboard_url())
+    
+@allow_http("POST")
 def deploy_to_github_initial(request):
     site = request.site
 
@@ -54,32 +81,26 @@ def deploy_to_github_initial(request):
     checkout_path = tempfile.mkdtemp()
     os.chdir(checkout_path)
 
-    subprocess.call(["bzr", "co", site.repo_path, "."])
-
     subprocess.call(["git", "init"])
     subprocess.call(["git", "remote", "add", "github",
-                     site.github_repo()])
+                     site.github_site().push_url()])
 
     gitignore = open(".gitignore", 'w')
     gitignore.write(".bzr")
     gitignore.close()
-
-    if site.custom_domain():
-        gitcname = open("CNAME", 'w')
-        gitcname.write(site.custom_domain())
-        gitcname.close()
-
-    subprocess.call(["git", "add", "."])
     subprocess.call(["git", "add", ".gitignore"])
 
-    subprocess.call(["git", "commit", "-a", "-m", "pushing to github"])
+    subprocess.call(["git", "commit",
+                     "-m", "initializing site"])
+
     subprocess.call(["git", "branch", "gh-pages"])
     subprocess.call(["git", "checkout", "gh-pages"])
     subprocess.call(["git", "push", "github", "gh-pages"])
 
     os.chdir(curdir)
     shutil.rmtree(checkout_path)
-    return redirect("/")
+
+    return redirect(site.deploy_dashboard_url())
 
 @allow_http("POST")
 def deploy_to_github(request):
@@ -96,7 +117,7 @@ def deploy_to_github(request):
     os.chdir(checkout_path)
 
     subprocess.call(["git", "clone", "-b", "gh-pages",
-                     site.github_repo(),
+                     site.github_site().push_url(),
                      "."])
 
     gitfiles = glob.glob(".*")
@@ -126,7 +147,7 @@ def deploy_to_github(request):
     os.chdir(curdir)
     shutil.rmtree(checkout_path)
 
-    return redirect("/")
+    return redirect(site.deploy_dashboard_url())
 
 @allow_http("GET")
 @rendered_with("sites/site/page-history.html")

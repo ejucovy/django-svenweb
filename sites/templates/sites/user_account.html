@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>User Settings</h1>
+<form method="POST">
+  {% csrf_token %}
+  <p>
+    <a class="help" href="#fqdn-help"
+       title="Enter the fully-qualified domain name. No http:// prefix."></a>
+    Github Username:
+    <input size="100" type="text" name="github_username" value="{{profile.github_username}}"/>
+  </p>
+  <p>
+    <a class="help" href="#fqdn-help"
+       title="Enter the fully-qualified domain name. No http:// prefix."></a>
+    Github API Token:
+    <input size="100" type="text" name="github_api_token" value="{{profile.github_api_token}}"/>
+  </p>
+
+  <input type="submit" />
+</form>
+{% endblock %}

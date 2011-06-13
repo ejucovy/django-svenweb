@@ -9,10 +9,14 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
 
     url(r'^.home/$', 'svenweb.sites.views.site_home', name='site_home'),
+    url(r'^.home/account/$', 'svenweb.sites.views.user_account', 
+        name='user_account'),
+
     url(r'^$', 'svenweb.sites.views.home', name='home'),
 
-    url(r'^.deploy/$', 'svenweb.sites.views.deploy'),
+    url(r'^.deploy/$', 'svenweb.sites.views.deploy', name="site_deploy"),
     url(r'^.deploy/github/init/$', 'svenweb.sites.views.deploy_to_github_initial'),
+    url(r'^.deploy/github/create/$', 'svenweb.sites.views.create_github_repo'),
     url(r'^.deploy/github/push/$', 'svenweb.sites.views.deploy_to_github'),
 
     url(r'^.index/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_index', name='page_index'),
