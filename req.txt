@@ -5,3 +5,4 @@ bzr
 gunicorn
 http://pypi.python.org/packages/source/r/restclient/restclient-0.10.1.tar.gz
 django-supervisor
+github2
