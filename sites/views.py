@@ -147,9 +147,11 @@ def deploy_to_github_initial(request):
     checkout_path = tempfile.mkdtemp()
     os.chdir(checkout_path)
 
+    domain = "github-%s" % request.user.username
+    url = site.github_site().push_url(domain)
+
     subprocess.call(["git", "init"])
-    subprocess.call(["git", "remote", "add", "github",
-                     site.github_site().push_url()])
+    subprocess.call(["git", "remote", "add", "github", url])
 
     gitignore = open(".gitignore", 'w')
     gitignore.write(".bzr")
@@ -163,11 +165,15 @@ def deploy_to_github_initial(request):
     subprocess.call(["git", "checkout", "gh-pages"])
     import tempfile
     with tempfile.TemporaryFile() as capture:
-        ret = subprocess.call(["git", "push", "github", "gh-pages"], stdout=capture, stderr=subprocess.STDOUT)
+        ret = subprocess.call(["git", "push", "github", "gh-pages"],
+                              stdout=capture, stderr=subprocess.STDOUT)
         if ret != 0:
             capture.seek(0)
-            if "Permission to %s.git denied" % site.github_repo() in capture.read():
+            _captured = capture.read()
 
+            if ("Permission denied" in _captured or
+                "Permission to %s.git denied" % site.github_repo() in _captured):
+                
                 os.chdir(curdir)
                 shutil.rmtree(checkout_path)
 
@@ -194,8 +200,9 @@ def deploy_to_github(request):
     checkout_path = tempfile.mkdtemp()
     os.chdir(checkout_path)
 
+    domain = "github-%s" % request.user.username
     subprocess.call(["git", "clone", "-b", "gh-pages",
-                     site.github_site().push_url(),
+                     site.github_site().push_url(domain),
                      "."])
 
     gitfiles = glob.glob(".*")

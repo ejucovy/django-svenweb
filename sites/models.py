@@ -167,8 +167,8 @@ class GithubSite(object):
         assert "/" in repo
         return repo
 
-    def push_url(self):
-        return "git@github.com:%s.git" % self.repo()
+    def push_url(self, domain="github.com"):
+        return "git@%s:%s.git" % (domain, self.repo())
 
     def repo_exists(self):
         from github2.client import Github
@@ -223,17 +223,25 @@ class UserProfile(models.Model):
     github_username = models.TextField()
     github_api_token = models.TextField()
 
+    def generate_github_key(self):
+        pass
+
     def register_github_key(self):
         from github2.client import Github
         github = Github(requests_per_second=1,
                         username=self.github_username,
                         api_token=self.github_api_token)
-        with open(settings.GITHUB_SSH_PUBKEY) as keyfile:
-            pubkey = keyfile.read()
-        resp = github.users.make_request("key", "add", method="POST", post_data={'title': "wiki.socialplanning.org", 'key': pubkey})
+        import os
+        keyfile = os.path.join(settings.GITHUB_SSH_DIR, self.user.username, "id_rsa.pub")
+        with open(keyfile) as keyfile:
+            pubkey = keyfile.read().strip()
+        resp = github.users.make_request(
+            "key", "add", method="POST",
+            post_data={'title': "wiki.socialplanning.org", 'key': pubkey})
         # error-check
         for key in resp['public_keys']:
-            if key['title'] == 'wiki.socialplanning.org' and key['key'] == pubkey:
+            if (key['title'] == 'wiki.socialplanning.org' and 
+                pubkey.startswith(key['key'])): # github trims the user suffix
                 return True
         # @@todo: diagnose?
         return False
