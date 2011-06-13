@@ -9,14 +9,14 @@
 <form method="POST">
   {% csrf_token %}
   <p>
-    <a class="help" href="#fqdn-help"
-       title="Enter the fully-qualified domain name. No http:// prefix."></a>
+<!--    <a class="help" href="#github-username"
+       title="Enter the fully-qualified domain name. No http:// prefix."></a> -->
     Github Username:
     <input size="100" type="text" name="github_username" value="{{profile.github_username}}"/>
   </p>
   <p>
-    <a class="help" href="#fqdn-help"
-       title="Enter the fully-qualified domain name. No http:// prefix."></a>
+    <a class="help" href="/static/images/github-api-token.png"
+       title="Find your Github API Token by going to your Account Settings, and then clicking Account Admin."></a>
     Github API Token:
     <input size="100" type="text" name="github_api_token" value="{{profile.github_api_token}}"/>
   </p>
