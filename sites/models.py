@@ -195,11 +195,21 @@ class GithubSite(object):
         Raises underlying exception otherwise.
         """
         assert not self.repo_exists()
+
+        repo = self.repo()
+        # If user joe is creating repo joe/site.git 
+        # the repo path has to just be "site.git".
+        # Apparently the full path is only used
+        # if you're interacting with a repo outside
+        # the authenticated user's path.
+        if repo.split("/")[0] == username:
+            repo = repo.split("/")[1]
+
         from github2.client import Github
         github = Github(requests_per_second=1,
                         username=username, api_token=token)
         try:
-            repo = github.repos.create(self.repo())
+            repo = github.repos.create(repo)
         except RuntimeError, exc:
             if "401" in exc.args[0]:
                 return False
