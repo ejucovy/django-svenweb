@@ -25,6 +25,11 @@ Logged in as {{request.user.username}}.
 Viewing site {{request.site.name}}.
 <a href="/?svenweb.unset_site">Return to list of sites?</a>
 {% endif %}
+<div style="font-weight: bold; color: red;">
+{% block flashmessage %}
+
+{% endblock %}
+</div>
 </div>
 
 {% block content %}

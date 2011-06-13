@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block flashmessage %}
+{% if message %}{{message}}{% endif %}
+{% endblock %}
+
 {% block content %}
 <h1>User Settings</h1>
 <form method="POST">
@@ -17,6 +21,7 @@
     <input size="100" type="text" name="github_api_token" value="{{profile.github_api_token}}"/>
   </p>
 
+  <input type="hidden" name="redirect_to" value="{{redirect_to}}" />
   <input type="submit" />
 </form>
 {% endblock %}

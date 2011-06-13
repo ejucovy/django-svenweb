@@ -1,5 +1,6 @@
 from djangohelpers.lib import allow_http, rendered_with
 from django.http import HttpResponse, HttpResponseRedirect as redirect
+from django.contrib import messages
 import mimetypes
 from sven import exc as sven
 from svenweb.sites.models import Wiki, UserProfile
@@ -30,8 +31,39 @@ def site_home(request):
 @rendered_with("sites/user_account.html")
 def user_account(request):
     user = request.user
-    profile = UserProfile.objects.get_or_create(user=user)
-    return {'profile': profile}
+    profile = UserProfile.objects.get_or_create(user=user)[0]
+
+    if request.method == "POST":
+        redirect_to = request.POST.get('redirect_to', '.')
+
+        username = request.POST['github_username']
+        token = request.POST['github_api_token']
+        profile.github_username = username
+        profile.github_api_token = token
+        profile.save()
+
+        return redirect(redirect_to)
+
+    message = None
+    redirect_to = "."
+    msgs = messages.get_messages(request)
+    for msg in msgs:
+        if 'failedauth' in msg.message:
+            message = ("Github authorization failed. " 
+                       "Please check your account's username "
+                       "and api token, and try again.")
+            redirect_to = request.site.deploy_dashboard_url()
+        if 'noprofile' in msg.message:
+            message = ("To create Github Repos, I need your "
+                       "Github username and API token. "
+                       "Please provide those, and then try again.")
+            redirect_to = request.site.deploy_dashboard_url()
+
+    return {
+        'profile': profile,
+        'message': message,
+        'redirect_to': redirect_to,
+        }
 
 @allow_http("GET", "POST")
 @rendered_with("sites/site/deploy.html")
@@ -54,14 +86,19 @@ def create_github_repo(request):
     try:
         profile = UserProfile.objects.get(user=user)
     except UserProfile.DoesNotExist:
-        # @@todo: flash message
+        messages.error(request, "noprofile")
         # @@todo: reverse urlconf
         return redirect("/.home/account/")
 
+    username, token = profile.github_username, profile.github_api_token
+    if not username or not token:
+        messages.error(request, "noprofile")
+        # @@todo: reverse urlconf
+        return redirect("/.home/account/")
+        
     repo = site.github_site()
-    if not repo.create_repo(profile.github_username,
-                            profile.github_api_token):
-        # @@todo: flash message
+    if not repo.create_repo(username, token):
+        messages.error(request, "failedauth")
         # @@todo: reverse urlconf
         return redirect("/.home/account/")
         
