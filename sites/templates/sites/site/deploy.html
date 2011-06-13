@@ -9,16 +9,15 @@
   This will create a git repository with a gh-pages branch only,
   hosted at Github.  Whenever you redeploy your site, all changes
   since your last deployment will be committed and pushed to that
-  repository in a single batch.  You must create the repo manually
-  at Github; you should create it and then leave it empty.
+  repository in a single batch.
 </p>
 
 <p>
   You can optionally configure a domain name that your site should
-  be served at.  You must own the domain, and must configure the DNS manually, 
-  per the instructions <a href="http://pages.github.com/#custom_domains">here</a>.
-  The CNAME file in your repository will be automatically created for you;
-  you only need to configure the settings with your DNS host.
+  be served at.  You must own the domain, and must configure the DNS manually.
+
+  <strong>At your DNS host, you should create an "A" record for the domain or subdomain 
+  you want to use, pointing to 207.97.227.245 (Github's IP address)</strong>
 </p>
 
 <h2>Deployment settings</h2>
@@ -58,6 +57,8 @@ or I can do it for you if you push this button:
   {% csrf_token %}
   <input type="submit" value="Create Github Repo" />
 </form>
+If you want to create the repository manually at Github,
+please leave it empty after creating it.
 {% else %}
 {% if not site.github_site.ghpages_exists %}
 Your site's Github Repo exists, but has not been initialized.
