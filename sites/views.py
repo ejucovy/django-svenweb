@@ -46,6 +46,16 @@ def site_home(request):
     return dict(site=site)
 
 @allow_http("GET", "POST")
+@rendered_with("sites/site/configure.html")
+def site_configure(request):
+    site = request.site
+    if request.method == "GET":
+        return dict(site=site)
+    wiki_type = request.POST['wiki_type']
+    site.set_options({'wiki_type': wiki_type})
+    return redirect(".")
+
+@allow_http("GET", "POST")
 @rendered_with("sites/user_account.html")
 def user_account(request):
     user = request.user
@@ -215,7 +225,13 @@ def deploy_to_github(request):
         elif os.path.isdir(file):
             shutil.rmtree(file)
 
-    subprocess.call(["bzr", "co", site.repo_path, "."])
+    export_path = site.compiler.compile()
+
+    from distutils.dir_util import copy_tree
+    copy_tree(export_path, checkout_path)
+    shutil.rmtree(export_path)
+
+    os.chdir(checkout_path)
 
     if site.custom_domain():
         gitcname = open("CNAME", 'w')

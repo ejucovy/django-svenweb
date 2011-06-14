@@ -6,6 +6,7 @@ import os
 import subprocess
 from sven.bzr import BzrAccess
 from svenweb.sites.github import GithubSite
+from svenweb.sites.compiler import WikiCompiler
 from StringIO import StringIO
 
 SESSION_KEY = 'svenweb.sites.site'
@@ -67,6 +68,9 @@ class Wiki(models.Model):
         else:
             raise TypeError("Cannot convert to bool: %s" % value)
 
+    def wiki_type(self):
+        return self.get_option("wiki_type", "raw")
+
     def custom_domain(self):
         return self.get_option("custom_domain", "")
 
@@ -75,6 +79,10 @@ class Wiki(models.Model):
 
     def github_site(self):
         return GithubSite(self)
+
+    @property
+    def compiler(self):
+        return WikiCompiler(self)
 
     def viewable(self, request):
         try:

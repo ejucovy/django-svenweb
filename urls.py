@@ -11,6 +11,7 @@ urlpatterns = patterns(
     url(r'^.oauth/$', 'svenweb.sites.views.oauth',),
 
     url(r'^.home/$', 'svenweb.sites.views.site_home', name='site_home'),
+    url(r'^.home/configure/$', 'svenweb.sites.views.site_configure', name='site_configure'),
     url(r'^.home/account/$', 'svenweb.sites.views.user_account', 
         name='user_account'),
 

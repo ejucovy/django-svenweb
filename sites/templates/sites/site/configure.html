@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1><a href="{{site.site_home_url}}">Site: {{site.name}}</a></h1>
+
+<h2>Wiki settings</h2>
+<form method="POST">
+  {% csrf_token %}
+  Wiki type:
+  <select name="wiki_type">
+    <option value="raw" {% if site.wiki_type == "raw" %}selected="selected"{% endif %}>
+      Raw</option>
+    <option value="managedhtml" {% if site.wiki_type == "managedhtml" %}selected="selected"{% endif %}>
+      Managed HTML</option>
+  </select>
+  <input type="submit" />
+</form>
+
+{% endblock %}
