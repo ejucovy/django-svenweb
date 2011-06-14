@@ -1,7 +1,6 @@
 This will be a Django project for managing bazaar-backed wikis and producing static websites.
 
-Installation
-============
+Installation::
 
     virtualenv.py .
     git clone git@github.com:ejucovy/django-svenweb svenweb
