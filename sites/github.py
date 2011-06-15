@@ -8,9 +8,7 @@ class GithubSite(object):
         self.wiki = wiki
 
     def repo(self):
-        repo = self.wiki.github_repo()
-        assert "/" in repo
-        return repo
+        return self.wiki.get_option("github_repo", "")
 
     def push_url(self, domain="github.com"):
         return "git@%s:%s.git" % (domain, self.repo())
