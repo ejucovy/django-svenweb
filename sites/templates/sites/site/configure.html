@@ -6,6 +6,9 @@
 <h2>Wiki settings</h2>
 <form method="POST">
   {% csrf_token %}
+  <a class="help" 
+     href="#wiki-type-help" 
+     title="Use a raw wiki if you want complete control over your files."></a>
   Wiki type:
   <select name="wiki_type">
     <option value="raw" {% if site.wiki_type == "raw" %}selected="selected"{% endif %}>
@@ -16,4 +19,35 @@
   <input type="submit" />
 </form>
 
+<div style="display: none;">
+  <div id="wiki-type-help">
+    <p>
+      A "Raw" wiki gives you complete control over your files: 
+      where you put them, what they're named,
+      and what their contents are.
+    </p>
+    <p>
+      A "Managed HTML" wiki gives you a little less control over
+      your files, by enforcing certain conventions and assumptions
+      about where your files will go and what they contain:
+      <ul>
+	<li>
+	  All content is assumed to be HTML.  You don't need to worry about 
+	  naming your files with a ".html" extension.
+	</li>
+	<li>
+	  You can edit your files with the Xinha WYSIWYG editor instead of
+	  typing in raw HTML manually.
+	</li>
+	<li>
+	  All non-HTML files (images, plaintext, javascript, css...) will
+	  live in a "/b/" directory.  When you upload files, they'll be put
+	  in that directory.
+	</li>
+      </ul>
+      Using a "Managed HTML" wiki can be more convenient, as long as these 
+      assumptions don't get in your way.
+    </p>
+  </div>
+</div>
 {% endblock %}
