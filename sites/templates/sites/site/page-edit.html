@@ -29,8 +29,11 @@ Xinha._addEvent(window, "load", xinha_init);
 <h1>Enter the page content</h1>
 <form method="POST" action="{{form_url}}" name="edit_form">
   {% csrf_token %}
-  <textarea id="contents" name="contents">{{contents}}</textarea>
-  <input type="submit" />
+  <textarea style="width: 800px; height: 600px;"
+	    id="contents" name="contents">{{contents}}</textarea>
+  <p>
+    <input type="submit" />
+  </p>
 </form>
 
 <h1>Or upload a file to this location</h1>
