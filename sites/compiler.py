@@ -2,7 +2,7 @@ import subprocess
 import tempfile
 import os
 
-def managed_html_wiki_compiler(export_path, wiki, literal_file_container='b'):
+def managed_html_wiki_compiler(export_path, wiki):
     """
     Compiles according to these rules:
     * Items in /b/ are left alone
@@ -18,7 +18,8 @@ def managed_html_wiki_compiler(export_path, wiki, literal_file_container='b'):
 
     renamed = []
     for root, dirs, files in os.walk(export_path):
-        if root.startswith(os.path.join(export_path, literal_file_container)):
+        if root.startswith(os.path.join(
+                export_path, wiki.raw_files_path.lstrip('/'))):
             continue
         for file in files:
             if file.endswith(".html"):
