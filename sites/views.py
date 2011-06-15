@@ -301,7 +301,7 @@ def page_create(request, subpath):
         path = subpath.rstrip('/') + '/' + path.strip('/')
 
         # @@todo: do something else if the page already exists, i guess?
-        return redirect(site.page_edit_url(path))
+        return redirect(site.page_edit_url(path.strip('/')))
 
     try:
         subpaths = site.get_contents(subpath)
