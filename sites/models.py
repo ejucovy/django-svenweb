@@ -134,6 +134,10 @@ class Wiki(models.Model):
     def deploy_dashboard_url(self):
         return ('site_deploy', [])
 
+    @models.permalink
+    def wiki_configure_url(self):
+        return ('site_configure', [])
+
     @property
     def repo_path(self):
         path = settings.SVENWEB_REPO_PATH

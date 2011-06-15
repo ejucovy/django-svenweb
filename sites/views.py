@@ -36,7 +36,7 @@ def home(request):
     site = Wiki(name=request.POST['name'])
     site.save()
     site.users.add(request.user)
-    return redirect(".")
+    return redirect(site.wiki_configure_url() + "?svenweb.set_site=%s" % site.pk)
 
 @allow_http("GET")
 @rendered_with("sites/site/home.html")
@@ -53,7 +53,7 @@ def site_configure(request):
         return dict(site=site)
     wiki_type = request.POST['wiki_type']
     site.set_options({'wiki_type': wiki_type})
-    return redirect(".")
+    return redirect(site.site_home_url())
 
 @allow_http("GET", "POST")
 @rendered_with("sites/user_account.html")
