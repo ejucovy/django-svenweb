@@ -364,6 +364,9 @@ def page_edit(request, subpath):
 
     # @@todo: dispatch to different editors based on mimetype
 
-    return dict(site=site, 
+    raw_edit = ("/%s" % subpath.lstrip('/')).startswith(site.raw_files_path)
+
+    return dict(site=site,
+                raw_edit=raw_edit,
                 contents=contents, path=subpath,
                 form_url=site.page_edit_url(subpath))

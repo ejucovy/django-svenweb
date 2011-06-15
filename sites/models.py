@@ -92,15 +92,19 @@ class Wiki(models.Model):
     def switch_context(self):
         return "?%s=%s" % (SET_KEY, self.pk)
 
-    @models.permalink
-    def upload_file_url(self):
+    @property
+    def raw_files_path(self):
         if self.wiki_type() == "raw":
-            subpath = ''
+            subpath = '/'
         elif self.wiki_type() == "managedhtml":
-            subpath = 'b'
+            subpath = '/b/'
         else:
             raise AssertionError("Unknown wiki type %s" % self.wiki_type())
-        return ('file_upload', [subpath])
+        return subpath
+
+    @models.permalink
+    def upload_file_url(self):
+        return ('file_upload', [self.raw_files_path.strip('/')])
 
     @models.permalink
     def site_home_url(self):

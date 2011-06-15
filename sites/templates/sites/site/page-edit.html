@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+
+{% if not raw_edit %}
 <script type="text/javascript">
   _editor_url  = "/static/xinha/"
   _editor_lang = "en";   
@@ -20,6 +22,8 @@ function xinha_init() {
 }
 Xinha._addEvent(window, "load", xinha_init);
 </script>
+{% endif %}
+
 <h1>{{path}}</h1>
 
 <h1>Enter the page content</h1>
