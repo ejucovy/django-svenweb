@@ -316,6 +316,32 @@ def page_create(request, subpath):
                 form_url=site.page_create_url(subpath))
 
 @allow_http("GET", "POST")
+@rendered_with("sites/site/file-upload.html")
+def file_upload(request, subpath):
+    site = request.site
+
+    if request.method == "GET":
+        return {'site': site}
+
+    file = request.FILES['file']
+    contents = file.read()
+
+    file_path = subpath
+
+    path = request.POST.get('subpath', None)
+    if path and path.strip():
+        file_path = file_path.rstrip('/') + '/' + path.lstrip('/')
+        
+    filename = request.POST.get('filename', None)
+    if not filename or not filename.strip():
+        filename = file.name
+
+    file_path = file_path.rstrip('/') + '/' + filename.lstrip('/')
+
+    site.write_page(file_path, contents)
+    return redirect(site.page_view_url(file_path))
+
+@allow_http("GET", "POST")
 @rendered_with("sites/site/page-edit.html")
 def page_edit(request, subpath):
     site = request.site
@@ -339,5 +365,6 @@ def page_edit(request, subpath):
 
     # @@todo: dispatch to different editors based on mimetype
 
-    return dict(contents=contents, path=subpath,
+    return dict(site=site, 
+                contents=contents, path=subpath,
                 form_url=site.page_edit_url(subpath))

@@ -83,7 +83,7 @@ class Wiki(models.Model):
     @property
     def compiler(self):
         return WikiCompiler(self)
-
+    
     def viewable(self, request):
         try:
             user = self.users.get(pk=request.user.pk)
@@ -93,6 +93,16 @@ class Wiki(models.Model):
 
     def switch_context(self):
         return "?%s=%s" % (SET_KEY, self.pk)
+
+    @models.permalink
+    def upload_file_url(self):
+        if self.wiki_type() == "raw":
+            subpath = ''
+        elif self.wiki_type() == "managedhtml":
+            subpath = 'b'
+        else:
+            raise AssertionError("Unknown wiki type %s" % self.wiki_type())
+        return ('file_upload', [subpath])
 
     @models.permalink
     def site_home_url(self):
