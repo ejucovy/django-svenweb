@@ -77,7 +77,8 @@ class Wiki(models.Model):
     def github_repo(self):
         return self.get_option("github_repo", "")
 
-    def github_site(self):
+    @property
+    def github(self):
         return GithubSite(self)
 
     @property

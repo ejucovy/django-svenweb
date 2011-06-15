@@ -135,8 +135,7 @@ def create_github_repo(request):
         # @@todo: reverse urlconf
         return redirect("/.home/account/")
 
-    repo = site.github_site()
-    if not repo.create_repo(username, token):
+    if not site.github.create_repo(username, token):
         messages.error(request, "failedauth")
         # @@todo: reverse urlconf
         return redirect("/.home/account/")
@@ -158,7 +157,7 @@ def deploy_to_github_initial(request):
     os.chdir(checkout_path)
 
     domain = "github-%s" % request.user.username
-    url = site.github_site().push_url(domain)
+    url = site.github.push_url(domain)
 
     subprocess.call(["git", "init"])
     subprocess.call(["git", "remote", "add", "github", url])
@@ -213,7 +212,7 @@ def deploy_to_github(request):
 
     domain = "github-%s" % request.user.username
     subprocess.call(["git", "clone", "-b", "gh-pages",
-                     site.github_site().push_url(domain),
+                     site.github.push_url(domain),
                      "."])
 
     gitfiles = glob.glob(".*")
