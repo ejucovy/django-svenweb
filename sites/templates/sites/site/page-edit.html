@@ -1,12 +1,31 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script type="text/javascript">
+  _editor_url  = "/static/xinha/"
+  _editor_lang = "en";   
+  _editor_skin = "silva";
+  _editor_icons = "classic";
+</script>
+<script type="text/javascript" src="/static/xinha/XinhaCore.js"></script>
+<script type="text/javascript">
+function xinha_init() {
+  var xinha_editors = ["contents"];
+  var xinha_config = new Xinha.Config();
+  xinha_config.width = "800px";
+  xinha_config.height = "600px";
+  xinha_config.baseHref = "/";
+  xinha_editors = Xinha.makeEditors(xinha_editors, xinha_config, []);
+  Xinha.startEditors(xinha_editors);
+}
+Xinha._addEvent(window, "load", xinha_init);
+</script>
 <h1>{{path}}</h1>
 
 <h1>Enter the page content</h1>
 <form method="POST" action="{{form_url}}" name="edit_form">
   {% csrf_token %}
-  <textarea name="contents">{{contents}}</textarea>
+  <textarea id="contents" name="contents">{{contents}}</textarea>
   <input type="submit" />
 </form>
 
