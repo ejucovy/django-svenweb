@@ -49,7 +49,7 @@
 {% if not site.github.repo %}
 You have not yet configured a Github Repo for your site.
 {% else %}
-{% if not site.github_site.repo_exists %}
+{% if not site.github.repo_exists %}
 Your site's Github Repo has not yet been created.
 You can create it yourself from Github, 
 or I can do it for you if you push this button:
@@ -60,7 +60,7 @@ or I can do it for you if you push this button:
 If you want to create the repository manually at Github,
 please leave it empty after creating it.
 {% else %}
-{% if not site.github_site.ghpages_exists %}
+{% if not site.github.ghpages_exists %}
 Your site's Github Repo exists, but has not been initialized.
 I can do it for you if you push this button:
 <form method="POST" action="./github/init/">
