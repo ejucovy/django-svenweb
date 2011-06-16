@@ -8,19 +8,32 @@
   _editor_lang = "en";   
   _editor_skin = "silva";
   _editor_icons = "classic";
+  _linker_backend_url = "/.xinha/linker/";
+  _image_manager_backend_url = "/.xinha/image_manager/";
 </script>
 <script type="text/javascript" src="/static/xinha/XinhaCore.js"></script>
 <script type="text/javascript">
+var xinha_editors;
+var xinha_plugins;
+var xinha_config;
 function xinha_init() {
-  var xinha_editors = ["contents"];
-  var xinha_config = new Xinha.Config();
+  xinha_editors = xinha_editors || ["contents"];
+  xinha_plugins = xinha_plugins || [
+    "Linker",
+//    "ImageManager"
+  ];
+  if( !Xinha.loadPlugins(xinha_plugins, xinha_init) ) return;
+  xinha_config = xinha_config || new Xinha.Config();
   xinha_config.width = "800px";
   xinha_config.height = "600px";
   xinha_config.baseHref = "/";
-  xinha_editors = Xinha.makeEditors(xinha_editors, xinha_config, []);
+  xinha_config.autofocus = true;
+  xinha_config.Linker.backend = _linker_backend_url;
+//  xinha_config.ImageManager.backend = _image_manager_backend_url;
+  xinha_editors = Xinha.makeEditors(xinha_editors, xinha_config, xinha_plugins);
   Xinha.startEditors(xinha_editors);
 }
-Xinha._addEvent(window, "load", xinha_init);
+Xinha.addOnloadHandler(xinha_init);
 </script>
 {% endif %}
 

@@ -5,8 +5,12 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
+
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'^admin/', include(admin.site.urls)),
+
+    url(r'^.xinha/linker/$', 'svenweb.sites.views.xinha_linker_backend',),
+    url(r'^.xinha/image_manager/$', 'svenweb.sites.views.xinha_image_manager_backend',),
 
     url(r'^.oauth/$', 'svenweb.sites.views.oauth',),
 

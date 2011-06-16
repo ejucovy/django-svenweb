@@ -6,6 +6,9 @@ from sven import exc as sven
 from svenweb.sites.models import Wiki, UserProfile
 from django.conf import settings
 from restclient import POST
+import json
+from django.views.decorators.csrf import csrf_exempt
+import os
 
 def oauth(request):
     if 'start' in request.GET:
@@ -22,6 +25,37 @@ def oauth(request):
                 token = item.split("=")[1]
                 request.session['github_oauth_token'] = token
         return redirect("/")
+
+@csrf_exempt
+@allow_http("GET", "POST")
+def xinha_linker_backend(request):
+    site = request.site
+
+    def recursive_walk(path):
+        files = []
+        for subpath in site.get_contents(path):
+            data = {'url': subpath}
+            file_path = os.path.join(site.repo_path, path, subpath)
+            print file_path
+            if os.path.isdir(file_path):
+                data['children'] = recursive_walk(subpath)
+            files.append(data)
+        return files
+    
+    files = recursive_walk('')
+    return HttpResponse(json.dumps(files), mimetype="application/json")
+
+
+@allow_http("GET")
+def xinha_image_manager_backend(request):
+    site = request.site
+
+    files = []
+    for path in site.get_contents():
+        files.append({'url': path})
+
+    
+    return HttpResponse(json.dumps(files), mimetype="application/json")
 
 @allow_http("GET", "POST")
 @rendered_with("sites/user_index.html")
