@@ -9,7 +9,7 @@
   _editor_skin = "silva";
   _editor_icons = "classic";
   _linker_backend_url = "/.xinha/linker/";
-  _image_manager_backend_url = "/.xinha/image_manager/";
+  _image_manager_backend_url = "/.xinha/image_manager/?";
 </script>
 <script type="text/javascript" src="/static/xinha/XinhaCore.js"></script>
 <script type="text/javascript">
@@ -20,7 +20,7 @@ function xinha_init() {
   xinha_editors = xinha_editors || ["contents"];
   xinha_plugins = xinha_plugins || [
     "Linker",
-//    "ImageManager"
+    "ImageManager"
   ];
   if( !Xinha.loadPlugins(xinha_plugins, xinha_init) ) return;
   xinha_config = xinha_config || new Xinha.Config();
@@ -29,7 +29,7 @@ function xinha_init() {
   xinha_config.baseHref = "/";
   xinha_config.autofocus = true;
   xinha_config.Linker.backend = _linker_backend_url;
-//  xinha_config.ImageManager.backend = _image_manager_backend_url;
+  xinha_config.ImageManager.backend = _image_manager_backend_url;
   xinha_editors = Xinha.makeEditors(xinha_editors, xinha_config, xinha_plugins);
   Xinha.startEditors(xinha_editors);
 }

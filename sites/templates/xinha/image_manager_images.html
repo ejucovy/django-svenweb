@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+  <head>
+    <title i18n:translate="">Image List</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link href="/static/xinha/plugins/ImageManager/assets/imagelist.css" rel="stylesheet" type="text/css"/>
+    <script type="text/javascript">
+      _backend_url = "/.xinha/image_manager/";
+    </script>
+
+    <script type="text/javascript" src="/static/xinha/plugins/ImageManager/assets/dialog.js"></script>
+    <script type="text/javascript">
+      /*<![CDATA[*/
+
+	if(window.top)
+		HTMLArea = window.top.HTMLArea;
+
+	function hideMessage()
+	{
+		var topDoc = window.top.document;
+		var messages = topDoc.getElementById('messages');
+		if(messages)
+			messages.style.display = "none";
+	}
+
+	init = function()
+	{
+	  __dlg_translate('ImageManager');
+		hideMessage();
+		var topDoc = window.top.document;
+
+    update_selected();
+	}	
+
+	function editImage(image) 
+	{
+		var url = "backend&__function=editor&img="+image;
+		Dialog(url, function(param) 
+		{
+			if (!param) // user must have pressed Cancel
+				return false;
+			else
+			{
+				return true;
+			}
+		}, null);		
+	}
+
+/*]]>*/
+    </script>
+    <script type="text/javascript" src="/static/xinha/plugins/ImageManager/assets/images.js"></script>
+    <script type="text/javascript" src="/static/xinha/plugins/ImageManager/assets/popup.js"></script>
+  </head>
+  <body>
+    {% for image in images %}
+
+    <div class="thumb_holder" id="holder_{{image.path}}">
+      <a href="#" class="thumb" style="cursor: pointer;" 
+	 title="{{image.description}}"
+	 onclick="selectImage('{{image.path}}', '{{image.title}}', {{image.width}}, {{image.height}}); return false;">
+        <img width="80" height="80" src="{{image.thumb_uri}}" alt="{{image.description}}" />
+      </a>
+      <div class="edit">
+<!--        <a href="/.xinha/image_manager/upload/?task|{{image.id}}|delete-image=del&att={{image.id}}"
+	   title="Trash" onclick="return confirmDeleteFile('');">
+          <img src="/static/edit_trash.gif" alt="Trash" height="15" width="15" />
+	</a>-->
+        {{image.width}} x {{image.height}}
+      </div>
+    </div>
+
+    {% endfor %}
+  </body>
+</html>
