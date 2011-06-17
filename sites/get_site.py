@@ -12,8 +12,8 @@ class Fetcher(object):
         content, files = self.get_content(theme_url)
         files = [("theme.html", content)] + files
         ret = self.wiki.write_pages(
-            files, prefix="/theme/%s" % theme_name,
-            msg="Importing theme \"%s\" from %s" % theme_url)
+            files, prefix="/b/theme/%s" % theme_name,
+            msg="Importing theme \"%s\" from %s" % (theme_name, theme_url))
         print ret
 
     def get_content(self, url):
