@@ -1,0 +1,6 @@
+<ruleset>
+  <match path="/theme" class="notheme" />
+  <rule class="default">
+    <replace theme="#deli-content" content="div#content" />
+  </rule>
+</ruleset>
