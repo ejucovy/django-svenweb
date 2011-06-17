@@ -9,15 +9,7 @@ urlpatterns = patterns(
     (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     url(r'^admin/', include(admin.site.urls)),
 
-    url(r'^.xinha/linker/$', 'svenweb.sites.views.xinha_linker_backend',),
-    url(r'^.xinha/image_manager/$', 'svenweb.sites.views.xinha_image_manager_backend',),
-    url(r'^.xinha/image_manager/images/*$',
-        'svenweb.sites.views.xinha_image_manager_backend_images',),
-    # @@ TODO: weird bug somewhere in xinha insisting on this url sometimes
-    url(r'^.xinha/image_manager/__function=images.*$',
-        'svenweb.sites.views.xinha_image_manager_backend_images',),
-    url(r'^.xinha/image_manager/upload/$', 
-        'svenweb.sites.views.xinha_image_manager_backend_upload',),
+    url(r'^.xinha/', include('svenweb.xinha.urls')),
 
     url(r'^.oauth/$', 'svenweb.sites.views.oauth',),
 
