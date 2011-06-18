@@ -105,6 +105,7 @@ def user_account(request):
         'profile': profile,
         'message': message,
         'redirect_to': redirect_to,
+        'site': request.site,
         }
 
 @allow_http("GET", "POST")
