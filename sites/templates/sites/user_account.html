@@ -5,6 +5,8 @@
 {% endblock %}
 
 {% block content %}
+<h1><a href="{{site.site_home_url}}">{{site.name}}</a></h1>
+
 <h1>User Settings</h1>
 <form method="POST">
   {% csrf_token %}
