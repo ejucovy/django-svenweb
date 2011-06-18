@@ -1,5 +1,5 @@
 <ruleset>
-  <match path="/theme" class="notheme" />
+  <match path="/b/" class="notheme" />
   <rule class="default">
     <replace theme="#deli-content" content="div#content" />
   </rule>
