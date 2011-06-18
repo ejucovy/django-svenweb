@@ -206,7 +206,15 @@ Host github-%(user)s
 
         config = self._ssh_config_template % locals()
 
-        file = open(os.path.join(basedir, 'config'))
+        try:
+            file = open(os.path.join(basedir, 'config'))
+        except IOError, e:
+            if e.errno == 2:  # file does not exist
+                file = open(os.path.join(basedir, 'config'), 'w')
+                file.close()
+                file = open(os.path.join(basedir, 'config'))
+            else:
+                raise
         config_contents = file.read()
         file.close()
 
