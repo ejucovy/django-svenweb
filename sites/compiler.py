@@ -66,11 +66,12 @@ def managed_html_wiki_compiler(export_path, wiki):
     from deliverance.middleware import make_deliverance_middleware
     app = make_deliverance_middleware(
         wsgi_app, {}, debug=True,
-        rule_filename="/usr/local/ejucovy/django/svenweb/rules.xml", 
+        rule_filename="/home/egj/Code/cel/svenweb/rules.xml", 
         theme_uri=theme_uri)
 
     from webtest import TestApp
-    app = TestApp(app)
+    app = TestApp(app, extra_environ={"HTTP_HOST": "socialplanning-sites.github.com",
+                                      })
 
     print renamed
     for orig, new in renamed:
