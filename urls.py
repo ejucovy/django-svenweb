@@ -25,6 +25,8 @@ urlpatterns = patterns(
     url(r'^.deploy/github/create/$', 'svenweb.sites.views.create_github_repo'),
     url(r'^.deploy/github/push/$', 'svenweb.sites.views.deploy_to_github'),
 
+    url(r'^.theme/$', 'svenweb.sites.views.theme'),
+
     url(r'^.index/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_index', name='page_index'),
     url(r'^.history/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_history', name='page_history'),
     url(r'^.create/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_create', name='page_create'),

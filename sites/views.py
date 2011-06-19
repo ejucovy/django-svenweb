@@ -27,6 +27,19 @@ def oauth(request):
         return redirect("/")
 
 @allow_http("GET", "POST")
+@rendered_with("sites/site/theme.html")
+def theme(request):
+    site = request.site
+
+    if request.method == "GET":
+        return {}
+
+    theme_url = request.POST['theme_url']
+    theme_name = request.POST['theme_name']
+    site.themer.fetch_theme(theme_url, theme_name)
+    return redirect(".")
+
+@allow_http("GET", "POST")
 @rendered_with("sites/user_index.html")
 def home(request):
     if request.method == "GET":

@@ -15,7 +15,7 @@ class Themer(object):
         return self.wiki.raw_files_path + "theme/" + name
 
     def fetch_theme(self, theme_url, theme_name):
-        mountpoint = self.wiki.theme_path(theme_name)
+        mountpoint = self.theme_path(theme_name)
         content, files = self.get_content(theme_url, mountpoint)
         files = [("theme.html", content)] + files
         return self.wiki.write_pages(

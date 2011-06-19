@@ -53,7 +53,7 @@ def managed_html_wiki_compiler(export_path, wiki):
             renamed.append((root[len(export_path):] + '/' + file, 
                             root[len(export_path):] + '/' + new_name))
 
-    theme_path = wiki.themer.theme_path()
+    theme_path = wiki.themer.theme_path() or "b/theme/coactivate"
     if theme_path:
         theme_uri = "/myfirstsite/" + theme_path + "/theme.html"
         from webob import Response
@@ -77,7 +77,7 @@ def managed_html_wiki_compiler(export_path, wiki):
         
         from webtest import TestApp
         app = TestApp(app, extra_environ={
-                "HTTP_HOST": wiki.custom_domain(),
+                "HTTP_HOST": wiki.custom_domain() or "socialplanning-sites.github.com",
                 })
 
         for orig, new in renamed:
