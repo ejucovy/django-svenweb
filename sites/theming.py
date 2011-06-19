@@ -3,13 +3,19 @@ import mimetypes
 import urllib2
 import posixpath
 
-class Fetcher(object):
+class Themer(object):
 
     def __init__(self, wiki):
         self.wiki = wiki
 
-    def fetch(self, theme_url, theme_name):
-        mountpoint = "b/theme/%s/" % theme_name
+    def theme_path(self, name=None):
+        name = name or self.wiki.get_option("theme_name", "")
+        if not name:
+            return None
+        return self.wiki.raw_files_path + "theme/" + name
+
+    def fetch_theme(self, theme_url, theme_name):
+        mountpoint = self.wiki.theme_path(theme_name)
         content, files = self.get_content(theme_url, mountpoint)
         files = [("theme.html", content)] + files
         return self.wiki.write_pages(
