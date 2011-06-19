@@ -9,7 +9,7 @@ class Fetcher(object):
         self.wiki = wiki
 
     def fetch(self, theme_url, theme_name):
-        mountpoint = "/b/theme/%s/" % theme_name
+        mountpoint = "b/theme/%s/" % theme_name
         content, files = self.get_content(theme_url, mountpoint)
         files = [("theme.html", content)] + files
         return self.wiki.write_pages(
@@ -19,7 +19,7 @@ class Fetcher(object):
     def get_content(self, url, mountpoint=''):
         """
         Gets the content and all embedded content (images, CSS, etc)
-        Links to embedded content are rewritten to be relative to `mountpoint`
+        Links to embedded content are rewritten to be relative
         """
         page = parse(urllib2.urlopen(url)).getroot()
         page.make_links_absolute()
@@ -35,7 +35,7 @@ class Fetcher(object):
                 old_value = element.text
             else:
                 old_value = unicode(element.attrib[attr])
-            new_value = old_value[:pos] + mountpoint + filename + old_value[pos+len(link):]
+            new_value = old_value[:pos] + filename + old_value[pos+len(link):]
             if attr is None:
                 element.text = new_value
             else:

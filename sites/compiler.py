@@ -53,9 +53,10 @@ def managed_html_wiki_compiler(export_path, wiki):
             renamed.append((root[len(export_path):] + '/' + file, 
                             root[len(export_path):] + '/' + new_name))
 
-    theme_uri = "/b/theme/socialplanning/theme.html"
+    theme_uri = "/myfirstsite/b/theme/socialplanning/theme.html"
     from webob import Response
     def wsgi_app(environ, start_response):
+        print environ['PATH_INFO']
         file = os.path.join(export_path.rstrip('/'),
                                environ['PATH_INFO'].lstrip('/'))
         print file
@@ -69,13 +70,17 @@ def managed_html_wiki_compiler(export_path, wiki):
         rule_filename="/home/egj/Code/cel/svenweb/rules.xml", 
         theme_uri=theme_uri)
 
+    from paste.urlmap import URLMap
+    _app = URLMap()
+    _app['/myfirstsite'] = app
+    app = _app
+
     from webtest import TestApp
     app = TestApp(app, extra_environ={"HTTP_HOST": "socialplanning-sites.github.com",
                                       })
 
-    print renamed
     for orig, new in renamed:
-        resp = app.get("/%s" % new.lstrip("/"))
+        resp = app.get("/myfirstsite/%s" % new.lstrip("/"))
         fp = open(os.path.join(export_path.rstrip('/'), new.lstrip('/')), 'w')
         fp.write(resp.body)
         fp.close()

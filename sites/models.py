@@ -7,6 +7,7 @@ import subprocess
 from sven.bzr import BzrAccess
 from svenweb.sites.github import GithubSite
 from svenweb.sites.compiler import WikiCompiler
+from svenweb.sites.get_site import Fetcher
 from StringIO import StringIO
 
 SESSION_KEY = 'svenweb.sites.site'
@@ -77,6 +78,10 @@ class Wiki(models.Model):
     @property
     def github(self):
         return GithubSite(self)
+
+    @property
+    def fetcher(self):
+        return Fetcher(self)
 
     @property
     def compiler(self):
