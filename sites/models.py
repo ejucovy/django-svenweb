@@ -25,7 +25,7 @@ NoDefault = _NoDefault()
 del _NoDefault
 
 class Wiki(models.Model):
-    name = models.TextField()
+    name = models.TextField(unique=True)
     config = models.TextField()
 
     def __unicode__(self):
