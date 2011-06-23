@@ -19,6 +19,7 @@
   </script>
 </head>
 <body>
+<div id="oc-tasktracker-wrapper">
 <div id="topnav">
 {% if request.user and request.site %}
 Logged in as {{request.user.username}}.
@@ -35,5 +36,6 @@ Viewing site {{request.site.name}}.
 {% block content %}
 
 {% endblock %}
+</div>
 </body>
 </html>
