@@ -138,39 +138,40 @@ class Wiki(models.Model):
 
     @models.permalink
     def upload_file_url(self):
-        return ('file_upload', [self.raw_files_path.strip('/')])
+        return ('file_upload', [self.name.split('/')[1],
+                                self.raw_files_path.strip('/')])
 
     @models.permalink
     def site_home_url(self):
-        return ('site_home', [])
+        return ('site_home', [self.name.split('/')[1]])
 
     @models.permalink
     def page_view_url(self, subpath=""):
-        return ('page_view', [subpath])
+        return ('page_view', [self.name.split('/')[1], subpath])
 
     @models.permalink
     def page_edit_url(self, subpath="/"):
-        return ('page_edit', [subpath])
+        return ('page_edit', [self.name.split('/')[1], subpath])
 
     @models.permalink
     def page_create_url(self, subpath=""):
-        return ('page_create', [subpath])
+        return ('page_create', [self.name.split('/')[1], subpath])
 
     @models.permalink
     def directory_index_url(self, subpath=""):
-        return ('page_index', [subpath])
+        return ('page_index', [self.name.split('/')[1], subpath])
 
     @models.permalink
     def history_url(self, subpath=""):
-        return ('page_history', [subpath])
+        return ('page_history', [self.name.split('/')[1], subpath])
 
     @models.permalink
     def deploy_dashboard_url(self):
-        return ('site_deploy', [])
+        return ('site_deploy', [self.name.split('/')[1]])
 
     @models.permalink
     def wiki_configure_url(self):
-        return ('site_configure', [])
+        return ('site_configure', [self.name.split('/')[1]])
 
     @property
     def repo_path(self):
