@@ -1,3 +1,4 @@
+{% load repo %}
 <html>
 <head>
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
@@ -20,22 +21,41 @@
 </head>
 <body>
 <div id="oc-tasktracker-wrapper">
-<div id="topnav">
-{% if request.user and request.site %}
-Logged in as {{request.user.username}}.
-Viewing site {{request.site.name}}.
-<a href="/?svenweb.unset_site">Return to list of sites?</a>
-{% endif %}
-<div style="font-weight: bold; color: red;">
-{% block flashmessage %}
+  <div id="oc-content-main" class="oc-content-main-fullWidth">
+    <div class="oc-wiki">
+      <ul class="oc-headingBlock oc-wiki-headingBlock oc-bcrumb">
+	<li>
+	  <h1 class="oc-bcrumb-current">The Basics</h1>
+	</li>
+      </ul>
+      <p class="oc-discreetText oc-wiki-lastModified">
+	<a href="">last modified</a>
+	<abbr title=""></abbr>
+	<a href="">by foo</a>
+      </p>
+      <ul class="oc-tabs">
+	<li><a href="{{site|page_view_url:path}}">View</a></li>
+	<li><a href="{{site|page_edit_url:path}}">Edit</a></li>
+	<li><a href="{{site|page_history_url:path}}">History</a></li>
+	<li><a href=""></a></li>
+      </ul>
+    </div>
 
-{% endblock %}
-</div>
-</div>
+      {% if request.user and request.site %}
+      Logged in as {{request.user.username}}.
+      Viewing site {{request.site.name}}.
+      <a href="/?svenweb.unset_site">Return to list of sites?</a>
+      {% endif %}
 
-{% block content %}
-
-{% endblock %}
-</div>
+    <div style="font-weight: bold; color: red;">
+      {% block flashmessage %}
+      
+      {% endblock %}
+    </div>
+    
+    {% block content %}
+    
+    {% endblock %}
+  </div>
 </body>
 </html>
