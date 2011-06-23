@@ -1,7 +1,9 @@
+from Cookie import BaseCookie
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser, User
+from django.http import HttpResponseNotFound
 from libopencore import auth
-from Cookie import BaseCookie
+from svenweb.sites.models import Wiki
 
 def get_user(request):
     try:
@@ -25,4 +27,23 @@ class LazyUser(object):
 class AuthenticationMiddleware(object):
     def process_request(self, request):
         request.__class__.user = LazyUser()
+        return None
+
+class SiteContextMiddleware(object):
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        site_name = view_kwargs.pop("site_name", None)
+        if not site_name:
+            return None
+        try:
+            project = request.META['HTTP_X_OPENPLANS_PROJECT']
+        except KeyError:
+            return None
+
+        site_name = "%s/%s" % (project, site_name)
+        try:
+            wiki = Wiki.objects.get(name=site_name)
+        except Wiki.DoesNotExist:
+            return HttpResponseNotFound()
+
+        request.site = wiki
         return None
