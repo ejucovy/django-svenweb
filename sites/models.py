@@ -318,10 +318,11 @@ Host github-%(user)s
 
 PERMISSIONS = {
     "WIKI_VIEW": "Can view wiki content",
-    "WIKI_EDIT": "Can edit wiki content and revert to old versions",
+    "WIKI_EDIT": ("Can edit wiki content, create new pages "
+                  "and revert to old versions"),
     "WIKI_HISTORY": "Can view wiki history",
     "WIKI_CONFIGURE": "Can change wiki settings",
-    "WIKI_SITE_DEPLOY": "Can manually redeploy the wiki's website",
+    "WIKI_DEPLOY": "Can manually redeploy the wiki's website",
     }
 
 class UserWikiPermissions(models.Model):
@@ -329,6 +330,9 @@ class UserWikiPermissions(models.Model):
     wiki = models.ForeignKey(Wiki)
 
     permissions = models.TextField()
+
+    def __unicode__(self):
+        return "%s: %s" % (self.wiki, self.username)
 
     def get_permissions(self):
         return self.permissions.split(',')
