@@ -3,8 +3,8 @@ from django.conf.urls.defaults import patterns, include, url
 urlpatterns = patterns(
     'svenweb.xinha.views',
 
-    url(r'^linker/$', 'xinha_linker_backend',),
-    url(r'^image_manager/$', 'xinha_image_manager_backend',),
+    url(r'^linker/$', 'xinha_linker_backend', name="xinha_linker"),
+    url(r'^image_manager/$', 'xinha_image_manager_backend', name="xinha_image_manager"),
     url(r'^image_manager/images/*$',
         'xinha_image_manager_backend_images',),
     url(r'^image_manager/upload/$', 

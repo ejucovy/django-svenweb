@@ -3,13 +3,16 @@
 {% block content %}
 
 {% if not raw_edit %}
+<link rel="xinha" href="/static/xinha/" />
+<link rel="xinha_linker" href="{{site.xinha_linker_url}}" />
+<link rel="xinha_image_manager" href="{{site.xinha_image_manager_url}}?" />
 <script type="text/javascript">
-  _editor_url  = "/static/xinha/"
-  _editor_lang = "en";   
+  _editor_url  = jQuery("link[rel=xinha]").attr("href");
+  _editor_lang = "en";
   _editor_skin = "silva";
   _editor_icons = "classic";
-  _linker_backend_url = "/.xinha/linker/";
-  _image_manager_backend_url = "/.xinha/image_manager/?";
+  _linker_backend_url = jQuery("link[rel=xinha_linker]").attr("href");
+  _image_manager_backend_url = jQuery("link[rel=xinha_image_manager]").attr("href");
 </script>
 <script type="text/javascript" src="/static/xinha/XinhaCore.js"></script>
 <script type="text/javascript">

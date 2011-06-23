@@ -173,6 +173,14 @@ class Wiki(models.Model):
     def wiki_configure_url(self):
         return ('site_configure', [self.name.split('/')[1]])
 
+    @models.permalink
+    def xinha_linker_url(self):
+        return ('xinha_linker', [self.name.split('/')[1]])
+
+    @models.permalink
+    def xinha_image_manager_url(self):
+        return ('xinha_image_manager', [self.name.split('/')[1]])
+
     @property
     def repo_path(self):
         path = settings.SVENWEB_REPO_PATH
