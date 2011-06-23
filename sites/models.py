@@ -204,6 +204,13 @@ class Wiki(models.Model):
         repo = BzrAccess(self.repo_path)
         return repo.write(path, contents)
 
+    def write_pages(self, files, prefix='', msg=None):
+        repo = BzrAccess(self.repo_path)
+        for path, contents in files:
+            repo.write("%s/%s" % (prefix, path),
+                       contents, commit=False)
+        return repo.commit(prefix, msg=msg)
+
     def get_history(self, path='/'):
         repo = BzrAccess(self.repo_path)
         contents = repo.log(path)

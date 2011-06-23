@@ -8,6 +8,9 @@ from sven import exc as sven
 from svenweb.sites.models import Wiki, UserProfile
 from django.conf import settings
 from restclient import POST
+import json
+from django.views.decorators.csrf import csrf_exempt
+import os
 
 def requires(permissions):
     if isinstance(permissions, basestring):
