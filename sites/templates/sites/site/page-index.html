@@ -5,7 +5,8 @@
 
 <ul>
 {% for subpath in subpaths %}
-<li><a href="/.index/{{subpath}}">{{subpath}}</a> (<a href="/.edit/{{subpath}}">edit it</a>)</li>
+<li><a href="{{site.directory_index_url}}{{subpath}}">{{subpath}}</a>
+  (<a href="{{site.page_edit_url}}{{subpath}}">edit it</a>)</li>
 {% endfor %}
 </ul>
 
