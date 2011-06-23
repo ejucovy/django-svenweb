@@ -18,3 +18,12 @@ register.filter("page_edit_url", edit_url)
 def history_url(wiki, path):
     return wiki.history_url(path)
 register.filter("page_history_url", history_url)
+
+def last_modified_author(wiki, path):
+    return wiki.last_modified_author(path)
+register.filter("last_modified_author", last_modified_author)
+
+def last_modified_date(wiki, path):
+    print wiki.last_modified_date(path)
+    return wiki.last_modified_date(path)
+register.filter("last_modified_date", last_modified_date)

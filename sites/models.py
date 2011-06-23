@@ -209,17 +209,37 @@ class Wiki(models.Model):
         repo = BzrAccess(self.repo_path)
         return repo.read(path)
 
-    def write_page(self, path, contents):
+    def write_page(self, path, contents, username=None):
         repo = BzrAccess(self.repo_path)
-        return repo.write(path, contents)
+        return repo.write(path, contents, author=username)
 
-    def write_pages(self, files, prefix='', msg=None):
+    def write_pages(self, files, prefix='', msg=None, username=None):
         repo = BzrAccess(self.repo_path)
         for path, contents in files:
             repo.write("%s/%s" % (prefix, path),
                        contents, commit=False)
-        return repo.commit(prefix, msg=msg)
+        return repo.commit(prefix, msg=msg, author=username)
 
+    def last_modified_author(self, path='/'):
+        repo = BzrAccess(self.repo_path)
+        contents = repo.log(path)
+        for obj in contents:
+            timestamp = obj['fields']['timestamp']
+            from wsgiref.handlers import format_date_time
+            obj['fields']['timestamp'] = \
+                format_date_time(timestamp)
+        return contents[0]['fields']['author']
+        
+    def last_modified_date(self, path='/'):
+        repo = BzrAccess(self.repo_path)
+        contents = repo.log(path)
+        for obj in contents:
+            timestamp = obj['fields']['timestamp']
+            import datetime
+            obj['fields']['timestamp'] = \
+                datetime.datetime.fromtimestamp(timestamp)
+        return contents[0]['fields']['timestamp']
+        
     def get_history(self, path='/'):
         repo = BzrAccess(self.repo_path)
         contents = repo.log(path)

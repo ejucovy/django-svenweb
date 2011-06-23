@@ -66,7 +66,7 @@ def home(request):
 def site_home(request):
     site = request.site
 
-    return dict(site=site)
+    return dict(site=site, path='')
 
 @requires("WIKI_CONFIGURE")
 @allow_http("GET", "POST")
@@ -370,7 +370,7 @@ def file_upload(request, subpath):
 
     file_path = file_path.rstrip('/') + '/' + filename.lstrip('/')
 
-    site.write_page(file_path, contents)
+    site.write_page(file_path, contents, username=request.user.username)
     return redirect(site.page_view_url(file_path))
 
 @requires("WIKI_EDIT")
@@ -385,7 +385,7 @@ def page_edit(request, subpath):
             contents = file.read()
         else:
             contents = request.POST['contents']
-        site.write_page(subpath, contents)
+        site.write_page(subpath, contents, username=request.user.username)
         return redirect(site.page_view_url(subpath))
 
     try:

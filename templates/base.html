@@ -29,9 +29,12 @@
 	</li>
       </ul>
       <p class="oc-discreetText oc-wiki-lastModified">
+	{% with site|last_modified_author:path as author %}
+	{% with site|last_modified_date:path as timestamp %}
 	<a href="">last modified</a>
-	<abbr title=""></abbr>
-	<a href="">by foo</a>
+	<abbr title="{{timestamp|date}} {{timestamp|time}}">{{timestamp|date}}</abbr>
+	<a href="http://www.coactivate.org/people/{{author}}/profile">by {{author}}</a>
+	{% endwith %}{% endwith %}
       </p>
       <ul class="oc-tabs">
 	<li><a href="{{site|page_view_url:path}}">View</a></li>
@@ -43,7 +46,7 @@
 
       {% if request.user and request.site %}
       Logged in as {{request.user.username}}.
-      Viewing site {{request.site.name}}.
+      Viewing site {{request.site.name}}.la
       <a href="/?svenweb.unset_site">Return to list of sites?</a>
       {% endif %}
 
