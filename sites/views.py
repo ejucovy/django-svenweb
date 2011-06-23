@@ -1,11 +1,26 @@
 from djangohelpers.lib import allow_http, rendered_with
-from django.http import HttpResponse, HttpResponseRedirect as redirect
+from django.http import (HttpResponse,
+                         HttpResponseRedirect as redirect, 
+                         HttpResponseForbidden)
 from django.contrib import messages
 import mimetypes
 from sven import exc as sven
 from svenweb.sites.models import Wiki, UserProfile
 from django.conf import settings
 from restclient import POST
+
+def requires(permissions):
+    if isinstance(permissions, basestring):
+        permissions = [permissions]
+    def wrapper(func):
+        def inner(request, *args, **kw):
+            available_permissions = request.site.get_permissions(request)
+            for permission in permissions:
+                if permission not in available_permissions:
+                    return HttpResponseForbidden()
+            return func(request, *args, **kw)
+        return inner
+    return wrapper
 
 def oauth(request):
     if 'start' in request.GET:
@@ -42,6 +57,7 @@ def home(request):
     site.add_admin_user(request.user)
     return redirect(site.wiki_configure_url() + "?svenweb.set_site=%s" % site.pk)
 
+@requires("WIKI_VIEW")
 @allow_http("GET")
 @rendered_with("sites/site/home.html")
 def site_home(request):
@@ -49,6 +65,7 @@ def site_home(request):
 
     return dict(site=site)
 
+@requires("WIKI_CONFIGURE")
 @allow_http("GET", "POST")
 @rendered_with("sites/site/configure.html")
 def site_configure(request):
@@ -108,6 +125,7 @@ def user_account(request):
         'redirect_to': redirect_to,
         }
 
+@requires("WIKI_CONFIGURE")
 @allow_http("GET", "POST")
 @rendered_with("sites/site/deploy.html")
 def deploy(request):
@@ -146,6 +164,7 @@ def create_github_repo(request):
         
     return redirect(site.deploy_dashboard_url())
     
+@requires("WIKI_DEPLOY")
 @allow_http("POST")
 def deploy_to_github_initial(request):
     site = request.site
@@ -200,6 +219,7 @@ def deploy_to_github_initial(request):
 
     return redirect(site.deploy_dashboard_url())
 
+@requires("WIKI_DEPLOY")
 @allow_http("POST")
 def deploy_to_github(request):
     site = request.site
@@ -254,6 +274,7 @@ def deploy_to_github(request):
 
     return redirect(site.deploy_dashboard_url())
 
+@requires("WIKI_HISTORY")
 @allow_http("GET")
 @rendered_with("sites/site/page-history.html")
 def page_history(request, subpath):
@@ -266,6 +287,7 @@ def page_history(request, subpath):
         
     return dict(site=site, history=history)
 
+@requires("WIKI_VIEW")
 @allow_http("GET")
 @rendered_with("sites/site/page-index.html")
 def page_index(request, subpath):
@@ -281,6 +303,7 @@ def page_index(request, subpath):
     # @@todo: maybe check for user-supplied index page?
     return dict(site=site, path=subpath, subpaths=subpaths)
 
+@requires("WIKI_VIEW")
 @allow_http("GET")
 def page_view(request, subpath):
     site = request.site
@@ -295,6 +318,7 @@ def page_view(request, subpath):
     mimetype = mimetypes.guess_type(subpath)[0]
     return HttpResponse(contents, mimetype=mimetype)
 
+@requires("WIKI_EDIT")
 @allow_http("GET", "POST")
 @rendered_with("sites/site/page-create.html")
 def page_create(request, subpath):
@@ -318,6 +342,7 @@ def page_create(request, subpath):
     return dict(site=site, path=subpath, subpaths=subpaths,
                 form_url=site.page_create_url(subpath))
 
+@requires("WIKI_EDIT")
 @allow_http("GET", "POST")
 @rendered_with("sites/site/file-upload.html")
 def file_upload(request, subpath):
@@ -344,6 +369,7 @@ def file_upload(request, subpath):
     site.write_page(file_path, contents)
     return redirect(site.page_view_url(file_path))
 
+@requires("WIKI_EDIT")
 @allow_http("GET", "POST")
 @rendered_with("sites/site/page-edit.html")
 def page_edit(request, subpath):

@@ -21,9 +21,6 @@ class SiteContextMiddleware(object):
             except Wiki.DoesNotExist:
                 del request.session[SESSION_KEY]
                 return None
-            if not wiki.viewable(request):
-                del request.session[SESSION_KEY]
-                return None
 
             request.site = wiki
             wiki.create_repo()
