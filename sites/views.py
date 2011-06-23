@@ -71,8 +71,8 @@ def user_account(request):
         else:
             username = request.POST['github_username']
             token = request.POST['github_api_token']
-            profile.github_username = username
-            profile.github_api_token = token
+            profile.set_options({'github_username': username,
+                                 'github_api_token': token})
             profile.save()
 
         return redirect(redirect_to)

@@ -29,6 +29,9 @@ class Wiki(models.Model):
     users = models.ManyToManyField(User)
     config = models.TextField()
 
+    def __unicode__(self):
+        return self.name
+
     def set_options(self, kwargs):
         if not self.config:
             self.config = "[options]"
@@ -184,8 +187,53 @@ from django.conf import settings
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User)
-    github_username = models.TextField()
-    github_api_token = models.TextField()
+
+    @property
+    def github_username(self):
+        return self.get_option("github_username", default='')
+
+    @property
+    def github_api_token(self):
+        return self.get_option("github_api_token", default='')
+
+    def set_options(self, kwargs):
+        if not self.config:
+            self.config = "[options]"
+        config = RawConfigParser()
+        fp = StringIO(self.config)
+        config.readfp(fp)
+
+        for key, val in kwargs.items():
+            config.set("options", key, val)
+
+        fp = StringIO()
+        config.write(fp)
+        fp.seek(0)
+        self.config = fp.read()
+        self.save()
+
+    def get_option(self, key, default=NoDefault, asbool=False):
+        config = RawConfigParser()
+        fp = StringIO(self.config)
+
+        config.readfp(fp)
+        try:
+            value = config.get("options", key)
+        except (NoOptionError, NoSectionError):
+            if default is NoDefault:
+                raise
+            return default
+
+        if not asbool:
+            return value.strip()
+
+        value = value.lower()
+        if value in ("1", "true", "t", "yes", "y", "on"):
+            return True
+        elif value in ("0", "false", "f", "no", "n", "off"):
+            return False
+        else:
+            raise TypeError("Cannot convert to bool: %s" % value)
 
     _ssh_config_template = """# Client user (%(user)s)
 Host github-%(user)s
