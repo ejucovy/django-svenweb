@@ -99,17 +99,13 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'svenweb.opencore.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'djangohelpers.middleware.AuthRequirementMiddleware',
-    'svenweb.sites.middleware.SiteContextMiddleware',
+    'svenweb.opencore.middleware.SiteContextMiddleware',
 )
+OPENCORE_SHARED_SECRET_FILE = '/path/to/secret.txt'
 
-OPENCORE_ROOT_URL = "http://localhost:10001/openplans/"
-
-AUTHENTICATION_BACKENDS = ('django.contrib.auth.backends.ModelBackend',
-                           'svenweb.auth.backends.OpenCoreBackend',
-                           )
+AUTHENTICATION_BACKENDS = ()
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.request',
@@ -120,7 +116,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.static",
     "django.contrib.messages.context_processors.messages")
 
-ROOT_URLCONF = 'svenweb.urls'
+ROOT_URLCONF = 'svenweb.opencore.urls'
 
 TEMPLATE_DIRS = (
     'templates',
@@ -135,6 +131,8 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'svenweb.sites',
+    'djsupervisor',
+    'gunicorn',
 )
 
 # A sample logging configuration. The only tangible logging
@@ -160,5 +158,4 @@ LOGGING = {
     }
 }
 
-ANONYMOUS_PATHS = ['/accounts']
 SVENWEB_REPO_PATH = here + '/repos'
