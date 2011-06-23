@@ -30,12 +30,16 @@ def home(request):
         if request.site is not None:
             return redirect(request.site.site_home_url())
 
-        sites = Wiki.objects.filter(users=request.user)
+        _sites = Wiki.objects.all()
+        sites = []
+        for site in _sites:
+            if site.viewable(request):
+                sites.append(site)
         return dict(sites=sites)
 
     site = Wiki(name=request.POST['name'])
     site.save()
-    site.users.add(request.user)
+    site.add_admin_user(request.user)
     return redirect(site.wiki_configure_url() + "?svenweb.set_site=%s" % site.pk)
 
 @allow_http("GET")

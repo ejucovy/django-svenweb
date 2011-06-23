@@ -26,7 +26,6 @@ del _NoDefault
 
 class Wiki(models.Model):
     name = models.TextField()
-    users = models.ManyToManyField(User)
     config = models.TextField()
 
     def __unicode__(self):
@@ -85,12 +84,44 @@ class Wiki(models.Model):
     def compiler(self):
         return WikiCompiler(self)
     
+    def get_permissions(self, request):
+        if request.user.is_superuser:
+            return PERMISSIONS.keys()
+
+        permissions = set()
+
+        anonymous_permissions, _ = UserWikiPermissions.objects.get_or_create(
+            wiki=self, username="__ANONYMOUS__")
+        permissions.update(anonymous_permissions.get_permissions())
+
+        authenticated_permissions, _ = UserWikiPermissions.objects.get_or_create(
+            wiki=self, username="__AUTHENTICATED__")
+        permissions.update(authenticated_permissions.get_permissions())
+
+        if not request.user.is_anonymous():
+            user_permissions, _ = UserWikiPermissions.objects.get_or_create(
+                wiki=self, username=request.user.username)
+            permissions.update(user_permissions.get_permissions())
+
+        return permissions
+
     def viewable(self, request):
-        try:
-            user = self.users.get(pk=request.user.pk)
-        except User.DoesNotExist:
-            return False
-        return True
+        return "WIKI_VIEW" in self.get_permissions(request)
+
+    def add_admin_user(self, user_or_username):
+        """
+        Normally you will pass a `auth.User` instance to this method,
+        but you can also pass a username string directly, for example
+        if you want to set permissions based on authentication you can
+        pass the string `"__ANONYMOUS__"` or `"__AUTHENTICATED__"`
+        """
+        if isinstance(user_or_username, basestring):
+            username = user_or_username
+        else:
+            username = user_or_username.username
+        permissions, _ = UserWikiPermissions.objects.get_or_create(
+            wiki=self, username=username)
+        permissions.add_all_permissions()
 
     def switch_context(self):
         return "?%s=%s" % (SET_KEY, self.pk)
@@ -284,3 +315,42 @@ Host github-%(user)s
                 return True
         # @@todo: diagnose?
         return False
+
+PERMISSIONS = {
+    "WIKI_VIEW": "Can view wiki content",
+    "WIKI_EDIT": "Can edit wiki content and revert to old versions",
+    "WIKI_HISTORY": "Can view wiki history",
+    "WIKI_CONFIGURE": "Can change wiki settings",
+    "WIKI_SITE_DEPLOY": "Can manually redeploy the wiki's website",
+    }
+
+class UserWikiPermissions(models.Model):
+    username = models.TextField()
+    wiki = models.ForeignKey(Wiki)
+
+    permissions = models.TextField()
+
+    def get_permissions(self):
+        return self.permissions.split(',')
+
+    def has_permission(self, permission):
+        return permission in self.permissions.split(',')
+
+    def add_all_permissions(self):
+        permissions = ','.join(PERMISSIONS.keys())
+        self.permissions = permissions
+        self.save()
+
+    def add_permission(self, permission):
+        permissions = self.permissions.split(',')
+        if permission not in permissions:
+            permissions.append(permission)
+        self.permissions = permissions
+        self.save()
+
+    def remove_permission(self, permission):
+        permissions = self.permissions.split(',')
+        if permission in permissions:
+            permissions.remove(permission)
+        self.permissions = permissions
+        self.save()
