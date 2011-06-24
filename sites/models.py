@@ -415,6 +415,13 @@ def get_highest_role(roles):
         if role in roles:
             return role
 
+def apply_constraints(recommendations, constraints):
+    permissions = []
+    for permission in recommendations:
+        if permission in constraints:
+            permissions.append(permission)
+    return permissions
+
 class UserWikiLocalRoles(models.Model):
     username = models.TextField()
     wiki = models.ForeignKey(Wiki)
@@ -449,4 +456,46 @@ class UserWikiLocalRoles(models.Model):
         if role in roles:
             roles.remove(role)
         self.roles = roles
+        self.save()
+
+class WikiRolePermissions(models.Model):
+    wiki = models.ForeignKey(Wiki)
+    role = models.TextField()
+    
+    permissions = models.TextField()
+
+    def __unicode__(self):
+        return "%s: %s" % (self.wiki, self.role)
+
+    def get_permissions(self):
+        if not self.permissions:
+            return []
+        return self.permissions.split(',')
+
+    def set_permissions(self, permissions):
+        if not permissions:
+            self.permissions = ''
+        self.permissions = ','.join(permissions)
+        self.save()
+
+    def has_permission(self, permission):
+        return permission in self.get_permissions()
+
+    #def add_all_permissions(self):
+    #    permissions = ','.join(PERMISSIONS.keys())
+    #    self.permissions = permissions
+    #    self.save()
+
+    def add_permission(self, permission):
+        permissions = self.get_permissions()
+        if permission not in permissions:
+            permissions.append(permissions)
+        self.permissions = permissions
+        self.save()
+
+    def remove_permission(self, permission):
+        permissions = self.get_permissions()
+        if permission in permissions:
+            permissions.remove(permission)
+        self.permissions = permissions
         self.save()

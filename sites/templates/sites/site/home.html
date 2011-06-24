@@ -5,6 +5,12 @@
 
 <h1>Role:{{roles}}</h1>
 <h1>Policy:{{policy}}</h1>
+<h1>Permissions</h1>
+<ul>
+{% for perm in permissions %}
+<li>{{perm}}</li>
+{% endfor %}
+</ul>
 
 <ul>
   <li><a href="{{site.page_view_url}}">Preview site</a></li>

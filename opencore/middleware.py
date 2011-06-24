@@ -7,7 +7,11 @@ from libopencore.query_project import (get_users_for_project,
                                        admin_post)
 from svenweb.sites.models import (Wiki,
                                   UserWikiLocalRoles,
-                                  get_highest_role)
+                                  WikiRolePermissions,
+                                  get_highest_role,
+                                  get_permission_constraints,
+                                  apply_constraints,
+                                  )
 
 def get_user(request):
     try:
@@ -74,8 +78,23 @@ def get_role(request, wiki):
     return role
 
 def get_permissions(request, wiki):
+    if hasattr(request, '_cached_svenweb_permissions'):
+        return request._cached_svenweb_permissions
+
+    policy = get_security_policy(request)
     role = get_role(request, wiki)
-    
+    constraints = get_permission_constraints(policy, role)
+    try:
+        permissions = WikiRolePermissions.objects.get(wiki=wiki, role=role)
+    except WikiRolePermissions.DoesNotExist:
+        permissions = WikiRolePermissions(wiki=wiki, role=role)
+        # The constraints serve fine as defaults too.
+        permissions.set_permissions(constraints)
+        permissions.save()
+    permissions = permissions.get_permissions()
+    permissions = apply_constraints(permissions, constraints)
+    request._cached_svenweb_permissions = permissions
+    return permissions
 
 class LazyUser(object):
     def __get__(self, request, obj_type=None):
