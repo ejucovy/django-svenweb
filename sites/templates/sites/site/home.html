@@ -1,13 +1,14 @@
 {% extends "base.html" %}
+{% load svenweb_security %}
 
 {% block content %}
 <h1>Site: {{site.name}}</h1>
 
-<h1>Role:{{roles}}</h1>
-<h1>Policy:{{policy}}</h1>
+<h1>Role:{{request|role:site}}</h1>
+<h1>Policy:{{request.get_security_policy}}</h1>
 <h1>Permissions</h1>
 <ul>
-{% for perm in permissions %}
+{% for perm in request|permissions:site %}
 <li>{{perm}}</li>
 {% endfor %}
 </ul>
