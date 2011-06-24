@@ -22,6 +22,7 @@
 <body>
 <div id="oc-tasktracker-wrapper">
   <div id="oc-content-main" class="oc-content-main-fullWidth">
+    {% if request.site %}
     <div class="oc-wiki">
       <ul class="oc-headingBlock oc-wiki-headingBlock oc-bcrumb">
 	<li>
@@ -43,12 +44,13 @@
 	<li><a href=""></a></li>
       </ul>
     </div>
+    {% endif %}
 
-      {% if request.user and request.site %}
-      Logged in as {{request.user.username}}.
-      Viewing site {{request.site.name}}.la
-      <a href="/?svenweb.unset_site">Return to list of sites?</a>
-      {% endif %}
+    {% if request.user and request.site %}
+    Logged in as {{request.user.username}}.
+    Viewing site {{request.site.name}}.la
+    <a href="/?svenweb.unset_site">Return to list of sites?</a>
+    {% endif %}
 
     <div style="font-weight: bold; color: red;">
       {% block flashmessage %}
