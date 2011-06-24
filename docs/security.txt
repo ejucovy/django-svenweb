@@ -1,0 +1,43 @@
+The short version is::
+
+  wiki.has_permission(permission_string, request)
+
+The longer version is as follows.
+
+From the request we can determine a username and a container
+e.g. opencore project:: 
+
+  username = authenticate_from_cookie(request)
+  container = request.META["HTTP_X_OPENPLANS_PROJECT"]
+
+A security policy will be attached to the container, which we can also
+determine from the request:: 
+
+  policy = get_security_policy(request)  # e.g. "OPEN"
+
+Meanwhile, given a username, container and wiki, we can determine a
+list of roles available for the current request.  This can include
+both remote roles that are determined solely by the username and
+container (Anonymous, Authenticated, ProjectMember, ProjectAdmin) and
+local roles (persisted in the svenweb database) attached to a given
+wiki::
+
+  roles = get_roles(request, username, container, wiki)
+
+Each security policy carries a set of permission constraints or upper
+bounds per role. For example a "CLOSED" policy might deny all
+permissions to non-members; a "MEDIUM" policy would deny edit
+permissions to non-members; and an "OPEN" policy would allow all
+permissions for all non-anonymous roles. Thus we can determine the
+permission upper-bounds for the current request given a policy and a
+set of roles for the current (user, container, wiki) context::
+
+  constraints = get_permission_constraints(policy, roles)
+
+Lastly, we refer to the wiki's own policy to determine recommended
+permissions per role::
+
+  recommendations = get_permission_recommendations(wiki, roles)
+
+The actual permissions for the current request are then determined by
+applying the constraints to the recommendations.

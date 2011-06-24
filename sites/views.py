@@ -66,7 +66,10 @@ def home(request):
 def site_home(request):
     site = request.site
 
-    return dict(site=site, path='')
+    from svenweb.opencore.middleware import get_role, get_security_policy
+    roles = get_role(request, site)
+    policy = get_security_policy(request)
+    return dict(site=site, path='', roles=roles, policy=policy)
 
 @requires("WIKI_CONFIGURE")
 @allow_http("GET", "POST")

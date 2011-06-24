@@ -85,10 +85,11 @@ class Wiki(models.Model):
         return WikiCompiler(self)
     
     def get_permissions(self, request):
-        if request.user.is_superuser:
+        if True or request.user.is_superuser:
             return PERMISSIONS.keys()
 
         permissions = set()
+        return permissions
 
         anonymous_permissions, _ = UserWikiPermissions.objects.get_or_create(
             wiki=self, username="__ANONYMOUS__")
@@ -354,43 +355,98 @@ Host github-%(user)s
 
 PERMISSIONS = {
     "WIKI_VIEW": "Can view wiki content",
+    "WIKI_HISTORY": "Can view wiki history",
     "WIKI_EDIT": ("Can edit wiki content, create new pages "
                   "and revert to old versions"),
-    "WIKI_HISTORY": "Can view wiki history",
     "WIKI_CONFIGURE": "Can change wiki settings",
     "WIKI_DEPLOY": "Can manually redeploy the wiki's website",
     }
 
-class UserWikiPermissions(models.Model):
+LOCAL_ROLES = [
+    "WikiManager",
+    ]
+
+_ROLE_RANKING = [
+    "ProjectAdmin",
+    "WikiManager",
+    "ProjectMember",
+    "Authenticated",
+    "Anonymous",
+    ]
+
+PERMISSION_CONSTRAINTS = {
+    'open_policy': {
+        "Anonymous": ["WIKI_VIEW", "WIKI_HISTORY"],
+        "Authenticated": ["WIKI_VIEW", "WIKI_HISTORY", "WIKI_EDIT"],
+        "ProjectMember": ["WIKI_VIEW", "WIKI_HISTORY",
+                          "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "WikiManager": ["WIKI_VIEW", "WIKI_HISTORY",
+                        "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "ProjectAdmin": ["WIKI_VIEW", "WIKI_HISTORY",
+                         "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        },
+    'medium_policy': {
+        "Anonymous": ["WIKI_VIEW", "WIKI_HISTORY"],
+        "Authenticated": ["WIKI_VIEW", "WIKI_HISTORY"],
+        "ProjectMember": ["WIKI_VIEW", "WIKI_HISTORY",
+                          "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "WikiManager": ["WIKI_VIEW", "WIKI_HISTORY",
+                        "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "ProjectAdmin": ["WIKI_VIEW", "WIKI_HISTORY",
+                         "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        },
+    'closed_policy': {
+        "Anonymous": [],
+        "Authenticated": [],
+        "ProjectMember": ["WIKI_VIEW", "WIKI_HISTORY",
+                          "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "WikiManager": ["WIKI_VIEW", "WIKI_HISTORY",
+                        "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "ProjectAdmin": ["WIKI_VIEW", "WIKI_HISTORY",
+                         "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        },
+    }
+
+def get_permission_constraints(policy, role):
+    return PERMISSION_CONSTRAINTS[policy][role]
+
+def get_highest_role(roles):
+    for role in _ROLE_RANKING:
+        if role in roles:
+            return role
+
+class UserWikiLocalRoles(models.Model):
     username = models.TextField()
     wiki = models.ForeignKey(Wiki)
 
-    permissions = models.TextField()
+    roles = models.TextField()
 
     def __unicode__(self):
         return "%s: %s" % (self.wiki, self.username)
 
-    def get_permissions(self):
-        return self.permissions.split(',')
+    def get_roles(self):
+        if not self.roles:
+            return []
+        return self.roles.split(',')
 
-    def has_permission(self, permission):
-        return permission in self.permissions.split(',')
+    def has_role(self, role):
+        return role in self.get_roles()
 
-    def add_all_permissions(self):
-        permissions = ','.join(PERMISSIONS.keys())
-        self.permissions = permissions
+    #def add_all_permissions(self):
+    #    permissions = ','.join(PERMISSIONS.keys())
+    #    self.permissions = permissions
+    #    self.save()
+
+    def add_role(self, role):
+        roles = self.get_roles()
+        if role not in roles:
+            roles.append(roles)
+        self.roles = roles
         self.save()
 
-    def add_permission(self, permission):
-        permissions = self.permissions.split(',')
-        if permission not in permissions:
-            permissions.append(permission)
-        self.permissions = permissions
-        self.save()
-
-    def remove_permission(self, permission):
-        permissions = self.permissions.split(',')
-        if permission in permissions:
-            permissions.remove(permission)
-        self.permissions = permissions
+    def remove_role(self, role):
+        roles = self.get_roles()
+        if role in roles:
+            roles.remove(role)
+        self.roles = roles
         self.save()
