@@ -51,6 +51,10 @@ def get_role(request, wiki):
 
     roles = set(["Authenticated"])
 
+    local_roles, _ = UserWikiLocalRoles.objects.get_or_create(username=request.user.username, wiki=wiki)
+    local_roles = local_roles.get_roles()
+    roles.update(local_roles)
+
     admin_info = auth.get_admin_info(settings.OPENCORE_ADMIN_FILE)
 
     users = get_users_for_project(request.META['HTTP_X_OPENPLANS_PROJECT'],
@@ -67,11 +71,7 @@ def get_role(request, wiki):
         request._cached_svenweb_role = role
         return role
 
-    roles.update(remote_roles)
-    
-    local_roles, _ = UserWikiLocalRoles.objects.get_or_create(username=request.user.username, wiki=wiki)
-    local_roles = local_roles.get_roles()
-    roles.update(local_roles)
+    roles.update(remote_roles)    
 
     role = get_highest_role(roles)
     request._cached_svenweb_role = role
@@ -105,7 +105,7 @@ class LazyUser(object):
 class AuthenticationMiddleware(object):
     def process_request(self, request):
         request.__class__.user = LazyUser()
-        request.get_role = lamdba x: get_role(request, x)
+        request.get_role = lambda x: get_role(request, x)
         request.get_permissions = lambda x: get_permissions(request, x)
         request.get_security_policy = lambda x: get_security_policy(request, x)
         return None

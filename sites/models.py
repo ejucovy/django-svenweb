@@ -101,9 +101,11 @@ class Wiki(models.Model):
             username = user_or_username
         else:
             username = user_or_username.username
-        local_roles, _ = UserWikiLocalRoles.objects.get_or_create(username=request.user.username, wiki=wiki)
+        local_roles, _ = UserWikiLocalRoles.objects.get_or_create(
+            username=username, wiki=self)
         local_roles.add_role("WikiManager")
-        
+        local_roles.save()
+
     def switch_context(self):
         return "?%s=%s" % (SET_KEY, self.pk)
 
@@ -427,8 +429,8 @@ class UserWikiLocalRoles(models.Model):
     def add_role(self, role):
         roles = self.get_roles()
         if role not in roles:
-            roles.append(roles)
-        self.roles = roles
+            roles.append(role)
+        self.roles = ','.join(roles)
         self.save()
 
     def remove_role(self, role):
