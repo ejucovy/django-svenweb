@@ -105,6 +105,9 @@ class LazyUser(object):
 class AuthenticationMiddleware(object):
     def process_request(self, request):
         request.__class__.user = LazyUser()
+        request.get_role = lamdba x: get_role(request, x)
+        request.get_permissions = lambda x: get_permissions(request, x)
+        request.get_security_policy = lambda x: get_security_policy(request, x)
         return None
 
 class SiteContextMiddleware(object):

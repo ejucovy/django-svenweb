@@ -85,26 +85,9 @@ class Wiki(models.Model):
         return WikiCompiler(self)
     
     def get_permissions(self, request):
-        if True or request.user.is_superuser:
+        if request.user.is_superuser:
             return PERMISSIONS.keys()
-
-        permissions = set()
-        return permissions
-
-        anonymous_permissions, _ = UserWikiPermissions.objects.get_or_create(
-            wiki=self, username="__ANONYMOUS__")
-        permissions.update(anonymous_permissions.get_permissions())
-
-        authenticated_permissions, _ = UserWikiPermissions.objects.get_or_create(
-            wiki=self, username="__AUTHENTICATED__")
-        permissions.update(authenticated_permissions.get_permissions())
-
-        if not request.user.is_anonymous():
-            user_permissions, _ = UserWikiPermissions.objects.get_or_create(
-                wiki=self, username=request.user.username)
-            permissions.update(user_permissions.get_permissions())
-
-        return permissions
+        return request.get_permissions(self)
 
     def viewable(self, request):
         return "WIKI_VIEW" in self.get_permissions(request)
@@ -112,18 +95,15 @@ class Wiki(models.Model):
     def add_admin_user(self, user_or_username):
         """
         Normally you will pass a `auth.User` instance to this method,
-        but you can also pass a username string directly, for example
-        if you want to set permissions based on authentication you can
-        pass the string `"__ANONYMOUS__"` or `"__AUTHENTICATED__"`
+        but you can also pass a username string directly.`
         """
         if isinstance(user_or_username, basestring):
             username = user_or_username
         else:
             username = user_or_username.username
-        permissions, _ = UserWikiPermissions.objects.get_or_create(
-            wiki=self, username=username)
-        permissions.add_all_permissions()
-
+        local_roles, _ = UserWikiLocalRoles.objects.get_or_create(username=request.user.username, wiki=wiki)
+        local_roles.add_role("WikiManager")
+        
     def switch_context(self):
         return "?%s=%s" % (SET_KEY, self.pk)
 
