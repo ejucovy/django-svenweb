@@ -9,6 +9,6 @@ urlpatterns = patterns(
     url(r'^admin/', include(admin.site.urls)),
     
     url(r'^$', 'svenweb.opencore.views.home', name='home'),
-    url(r'^(?P<site_name>\w+)/', include('svenweb.sites.urls')),
+    url(r'^(?P<site_name>[\w-]+)/', include('svenweb.sites.urls')),
     
     )

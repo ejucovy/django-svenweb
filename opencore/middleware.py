@@ -41,19 +41,9 @@ def get_security_policy(request):
     request._cached_opencore_policy = policy
     return policy
 
-def get_role(request, wiki):
-    if hasattr(request, '_cached_svenweb_role'):
-        return request._cached_svenweb_role
-
+def get_project_role(request):
     if request.user.is_anonymous():
-        request._cached_svenweb_role = "Anonymous"
         return "Anonymous"
-
-    roles = set(["Authenticated"])
-
-    local_roles, _ = UserWikiLocalRoles.objects.get_or_create(username=request.user.username, wiki=wiki)
-    local_roles = local_roles.get_roles()
-    roles.update(local_roles)
 
     admin_info = auth.get_admin_info(settings.OPENCORE_ADMIN_FILE)
 
@@ -67,11 +57,24 @@ def get_role(request, wiki):
             remote_roles = member['roles']
             break
     if not found:
-        role = get_highest_role(roles)
-        request._cached_svenweb_role = role
-        return role
+        return "Authenticated"
+    else:
+        return get_highest_role(remote_roles)
 
-    roles.update(remote_roles)    
+def get_role(request, wiki):
+    if hasattr(request, '_cached_svenweb_role'):
+        return request._cached_svenweb_role
+
+    if request.user.is_anonymous():
+        request._cached_svenweb_role = "Anonymous"
+        return "Anonymous"
+
+    roles = set(["Authenticated"])
+    roles.add(get_project_role(request))
+
+    local_roles, _ = UserWikiLocalRoles.objects.get_or_create(username=request.user.username, wiki=wiki)
+    local_roles = local_roles.get_roles()
+    roles.update(local_roles)
 
     role = get_highest_role(roles)
     request._cached_svenweb_role = role
@@ -105,6 +108,7 @@ class LazyUser(object):
 class AuthenticationMiddleware(object):
     def process_request(self, request):
         request.__class__.user = LazyUser()
+        request.get_project_role = lambda: get_project_role(request)
         request.get_role = lambda x: get_role(request, x)
         request.get_permissions = lambda x: get_permissions(request, x)
         request.get_security_policy = lambda x: get_security_policy(request, x)
@@ -127,4 +131,5 @@ class SiteContextMiddleware(object):
             return HttpResponseNotFound()
 
         request.site = wiki
+        wiki.create_repo()
         return None

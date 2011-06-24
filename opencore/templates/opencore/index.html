@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Welcome to the site, {{request.user}}</h1>
+
+<h2>Your wikis</h2>
+<ul>
+  {% for wiki in wikis %}
+  <li>
+    <a href="{{wiki.site_home_url}}">{{wiki.name}}</a>
+  </li>
+  {% endfor %}
+</ul>
+
+{% if request.get_project_role == "ProjectAdmin" %}
+<h2>Create a wiki</h2>
+<form method="POST">
+  {% csrf_token %}
+  <p>
+    Name: <input type="text" name="name" />
+  </p>
+  <input type="submit" />
+</form>
+{% endif %}
+
+{% endblock %}
