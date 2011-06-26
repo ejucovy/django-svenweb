@@ -1,0 +1,76 @@
+<div id="managers-section"> 
+  <h2>
+    <label for="managers">Wiki managers</label>
+  </h2> 
+  <p>
+    Wiki managers can perform all wiki functions;
+    set permissions for others; add and remove features;
+    and delete the wiki.
+  </p> 
+  <p>
+   In addition to the team members added below,
+   all project administrators also have these privileges. 
+   Project administrators are labelled on the project's team page.
+  </p> 
+
+  <select class="asmselect" name="managers" multiple="multiple" 
+	  title="Click to select project members">
+    {% for member in request.get_project_members %}
+    <option {% if member == request.user.username %}selected="selected"{% endif %}
+	    value="{{member}}">{{member}}</option>
+    {% endfor %}
+  </select>
+ 
+</div> 
+ 
+<div id="permissions_section"> 
+  <!-- Permissions --> 
+  <div id="permission_help"> 
+    
+    <p>You can create wikis that match your particular needs by choosing the options that best work for you.</p> 
+    
+    <ul>
+      <li>If a set of tasks requires more direction, create a manger-directed list in which members can views tasks that have been assigned to them or <b>claim tasks</b> that have been left unassigned.</li> 
+      
+      <li>For a more collaborative project, allow members to <b>create new tasks</b> and <b>edit tasks</b>.</li> 
+    </ul><p> The options further down the list add to or override those options further up. If you select to allow team members to edit any task, for instance, then they can also view this list, and claim tasks, and create new tasks. If you choose to allow non-members to create new tasks then they can also view this list and claim tasks.</p> 
+    
+    <p>The options are also designed to avoid incompatible choices. You cannot, for example, allow non-members to edit any tasks but restrict team members to only viewing the list.</p> 
+    
+  </div> 
+  
+  <table>
+    <tbody>
+      <tr valign="top" padding="50px;">
+	<td width="50%"> 
+	  <h2>coactivate-site-copy's project members can</h2>
+	  <ul id="member_permissions">
+	    {% for permission in member_permissions %}
+	    <li>
+	      <input type="radio" name="member_perms"
+		     value="{{permission.0}}">{{permission.1}}</radio>
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</td> 
+	<td width="20;">&#160;</td> 
+	
+	<td width="50%"> 
+	  <h2>Other users can</h2> 
+	  <ul id="other_permissions">
+	    {% for permission in other_permissions %}
+	    <li>
+	      <input type="radio" name="other_perms"
+		     value="{{permission.0}}">{{permission.1}}</radio>
+	    </li>
+	    {% endfor %}
+	  </ul>
+	</td> 
+ 
+      </tr>
+    </tbody>
+  </table><!-- these will be filled in by htmlfill, and then deleted by js -->
+
+  <hr>
+</div> 
+

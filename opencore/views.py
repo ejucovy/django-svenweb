@@ -20,7 +20,35 @@ def home(request):
     project = request.META['HTTP_X_OPENPLANS_PROJECT']
     wikis = Wiki.objects.filter(name__startswith=project+'/')
 
-    return {'wikis': wikis, 'project': project}
+    policy = request.get_security_policy()
+
+    from svenweb.sites.models import PERMISSION_CONSTRAINTS, PERMISSIONS
+    member_constraints = PERMISSION_CONSTRAINTS[policy]["ProjectMember"]
+    other_constraints = PERMISSION_CONSTRAINTS[policy]["Authenticated"]
+
+    _member_permissions = [i for i in PERMISSIONS
+                           if i[0] in member_constraints]
+    _other_permissions = [i for i in PERMISSIONS
+                          if i[0] in other_constraints]
+
+    member_permissions = [(-1, "not even see this wiki")]
+    for i in range(len(_member_permissions)):
+        prefix = ""
+        if i > 0:
+            prefix = "and "
+        member_permissions.append((i, prefix + _member_permissions[i][1]))
+    
+    other_permissions = [(-1, "not even see this wiki")]
+    for i in range(len(_other_permissions)):
+        prefix = ""
+        if i > 0:
+            prefix = "and "
+        other_permissions.append((i, prefix + _other_permissions[i][1]))
+    
+    return {'wikis': wikis, 'project': project,
+            'member_permissions': member_permissions,
+            'other_permissions': other_permissions,
+            }
 
 @requires_project_admin
 @allow_http("POST")

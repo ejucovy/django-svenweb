@@ -87,7 +87,7 @@ class Wiki(models.Model):
     
     def get_permissions(self, request):
         if request.user.is_superuser:
-            return PERMISSIONS.keys()
+            return [i[0] for i in PERMISSIONS]
         return request.get_permissions(self)
 
     def viewable(self, request):
@@ -362,14 +362,14 @@ Host github-%(user)s
         # @@todo: diagnose?
         return False
 
-PERMISSIONS = {
-    "WIKI_VIEW": "Can view wiki content",
-    "WIKI_HISTORY": "Can view wiki history",
-    "WIKI_EDIT": ("Can edit wiki content, create new pages "
-                  "and revert to old versions"),
-    "WIKI_CONFIGURE": "Can change wiki settings",
-    "WIKI_DEPLOY": "Can manually redeploy the wiki's website",
-    }
+PERMISSIONS = (
+    ("WIKI_VIEW", "view wiki content"),
+    ("WIKI_HISTORY", "view wiki history"),
+    ("WIKI_EDIT", ("edit wiki content, create new pages "
+                   "and revert to old versions")),
+    ("WIKI_CONFIGURE", "change wiki settings"),
+    ("WIKI_DEPLOY", "manually redeploy the wiki's website"),
+    )
 
 LOCAL_ROLES = [
     "WikiManager",

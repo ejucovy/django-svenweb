@@ -54,6 +54,18 @@ def _fetch_user_roles(project):
                                   admin_info)
     return users
 
+def get_project_members(request):
+    if hasattr(request, '_cached_opencore_project_members'):
+        return request._cached_opencore_project_members
+
+    users = _fetch_user_roles(request.META['HTTP_X_OPENPLANS_PROJECT'])
+    members = []
+    for member in users:
+        members.append(member['username'])
+    members = sorted(members)
+    request._cached_opencore_project_members = members
+    return members
+
 def get_project_role(request):
     if hasattr(request, '_cached_opencore_project_role'):
         return request._cached_opencore_project_role
@@ -123,6 +135,7 @@ class AuthenticationMiddleware(object):
     def process_request(self, request):
         request.__class__.user = LazyUser()
         request.get_project_role = lambda: get_project_role(request)
+        request.get_project_members = lambda: get_project_members(request)
         request.get_security_policy = lambda: get_security_policy(request)
         request.get_role = lambda x: get_role(request, x)
         request.get_permissions = lambda x: get_permissions(request, x)
