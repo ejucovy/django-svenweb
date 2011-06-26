@@ -1,13 +1,42 @@
 {% extends "base.html" %}
 
-{% block content %}
-<h1>History: {{path}}</h1>
+{% load repo %}
 
-<ol>
+{% block content %}
+<div class="oc-headingBlock oc-boxy">
+<h2>All versions of &ldquo;{{path|deslug}}&rdquo;</h2>
+{% with site|last_modified_author:path as username %}
+{% with site|last_modified_date:path as date %}
+<span class="oc-headingContext oc-discreetText">
+  {{history|length}} versions total.  Last edit performed by
+  <a href="http://www.coactivate.org/people/{{username}}">{{username}}</a>,
+  <abbr title="{{date}}">{{date|date}}</abbr>.
+</span>
+{% endwith %}{% endwith %}
+</div>
+
+<div class="oc-lineup">
+
+<ul class="oc-lineup-list">
   {% for item in history %}
-  <li>{{item.fields.author}}
-    edited <a href="{{site.page_view_url}}{{item.href}}">{{item.href}}</a>
-    on {{item.fields.timestamp}}.</li>
+  <li class="oc-wiki-history-item oc-lineup-item">
+    <h3><a href="{{site|page_history_version_url:path}}?version_id={{item.fields.version}}">
+    {% if forloop.first %}
+    Current Version
+    {% else %}
+    {% if forloop.last %}
+    Initial Version
+    {% else %}
+    Version {{forloop.revcounter}}
+    {% endif %}{% endif %}
+    </a></h3>
+    by <a href="http://www.coactivate.org/people/{{item.fields.author}}">
+      {{item.fields.author}}</a>,
+    <abbr title="{{item.fields.timestamp|date}} {{item.fields.timestamp|time}}">{{item.fields.timestamp|date}}</abbr>
+    <p class="oc-wiki-history-item-context oc-discreetText">
+      {{item.fields.commitmessage}}
+    </p>
+  </li>
   {% endfor %}
 </ol>
 

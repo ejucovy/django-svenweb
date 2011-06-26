@@ -27,17 +27,21 @@
     <div class="oc-wiki">
       <ul class="oc-headingBlock oc-wiki-headingBlock oc-bcrumb">
 	<li>
-	  <h1 class="oc-bcrumb-current">The Basics</h1>
+	  <h1 class="oc-bcrumb-current">
+	    {{path|deslug}}
+	  </h1>
 	</li>
       </ul>
+      {% with site|latest_change:path as latest_change %}
+      {% if latest_change %}
       <p class="oc-discreetText oc-wiki-lastModified">
-	{% with site|last_modified_author:path as author %}
-	{% with site|last_modified_date:path as timestamp %}
-	<a href="">last modified</a>
-	<abbr title="{{timestamp|date}} {{timestamp|time}}">{{timestamp|date}}</abbr>
-	<a href="http://www.coactivate.org/people/{{author}}/profile">by {{author}}</a>
-	{% endwith %}{% endwith %}
+	<a href="{{site|latest_change_url:path}}">last modified</a>
+	<abbr title="{{latest_change.timestamp|date}} 
+		     {{latest_change.timestamp|time}}">
+	  {{latest_change.timestamp|date}}</abbr>
+	<a href="http://www.coactivate.org/people/{{latest_change.author}}/profile">by {{latest_change.author}}</a>
       </p>
+      {% endif %}{% endwith %}
       <ul class="oc-tabs">
 	<li><a href="{{site|page_view_url:path}}">View</a></li>
 	<li><a href="{{site|page_edit_url:path}}">Edit</a></li>
@@ -45,12 +49,6 @@
 	<li><a href=""></a></li>
       </ul>
     </div>
-    {% endif %}
-
-    {% if request.user and request.site %}
-    Logged in as {{request.user.username}}.
-    Viewing site {{request.site.name}}.la
-    <a href="/?svenweb.unset_site">Return to list of sites?</a>
     {% endif %}
 
     <div style="font-weight: bold; color: red;">

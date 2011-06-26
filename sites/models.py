@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 import os
 import subprocess
+from sven import exc as sven
 from sven.bzr import BzrAccess
 from svenweb.sites.github import GithubSite
 from svenweb.sites.compiler import WikiCompiler
@@ -133,6 +134,14 @@ class Wiki(models.Model):
         return ('page_view', [self.name.split('/')[1], subpath])
 
     @models.permalink
+    def history_version_url(self, subpath=""):
+        return ('page_history_version', [self.name.split('/')[1], subpath])
+
+    @models.permalink
+    def latest_change_url(self, subpath=""):
+        return ("latest_change", [self.name.split('/')[1], subpath])
+
+    @models.permalink
     def page_edit_url(self, subpath="/"):
         return ('page_edit', [self.name.split('/')[1], subpath])
 
@@ -147,6 +156,10 @@ class Wiki(models.Model):
     @models.permalink
     def history_url(self, subpath=""):
         return ('page_history', [self.name.split('/')[1], subpath])
+
+    @models.permalink
+    def page_diff_url(self, subpath=""):
+        return ('page_diff', [self.name.split('/')[1], subpath])
 
     @models.permalink
     def deploy_dashboard_url(self):
@@ -203,6 +216,20 @@ class Wiki(models.Model):
                        contents, commit=False)
         return repo.commit(prefix, msg=msg, author=username)
 
+    def latest_change(self, path=""):
+        repo = BzrAccess(self.repo_path)
+        try:
+            contents = repo.log(path)
+        except sven.NoSuchResource:
+            return None
+
+        for obj in contents:
+            timestamp = obj['fields']['timestamp']
+            import datetime
+            obj['fields']['timestamp'] = \
+                datetime.datetime.fromtimestamp(timestamp)
+        return contents[0]['fields']
+
     def last_modified_author(self, path='/'):
         repo = BzrAccess(self.repo_path)
         contents = repo.log(path)
@@ -228,9 +255,9 @@ class Wiki(models.Model):
         contents = repo.log(path)
         for obj in contents:
             timestamp = obj['fields']['timestamp']
-            from wsgiref.handlers import format_date_time
+            import datetime
             obj['fields']['timestamp'] = \
-                format_date_time(timestamp)
+                datetime.datetime.fromtimestamp(timestamp)
         return contents
 
 from django.conf import settings

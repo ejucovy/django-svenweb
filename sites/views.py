@@ -293,6 +293,33 @@ def page_history(request, subpath):
         
     return dict(site=site, history=history, path=subpath)
 
+@requires("WIKI_HISTORY")
+@allow_http("GET")
+@rendered_with("sites/site/page-history-version.html")
+def page_history_version(request, subpath):
+    site = request.site
+
+    rev = request.GET.get("version_id")
+    try:
+        contents = site.get_page(subpath, rev=rev)
+    except sven.ResourceUnchanged, e:
+        return redirect(site.history_version_url(subpath)
+                        + "?version_id=%s" % e.last_change)
+    except sven.NotAFile: # TODO: this should redirect to a historical index view
+        return redirect(site.directory_index_url(subpath))
+    except sven.NoSuchResource:
+        # if the resource doesn't exist, we'll just redirect to
+        # the current view url and let that handle it .. if it
+        # still doesn't exist the user will be doubly redirected
+        # to an edit url.
+        # but really we should provide more information - last revision
+        # when the page existed, or next revision when it came into being
+        return redirect(site.page_view_url(subpath))
+
+    mimetype = mimetypes.guess_type(subpath)[0]
+    return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
+
+
 @requires("WIKI_VIEW")
 @allow_http("GET")
 @rendered_with("sites/site/page-index.html")
@@ -329,24 +356,58 @@ from lxml.html.diff import htmldiff
 
 @requires("WIKI_HISTORY")
 @allow_http("GET")
+def latest_change(request, subpath):
+    site = request.site
+
+    latest_change = site.latest_change(subpath)
+    if latest_change is None:
+        # TODO: dunno where to send them
+        return redirect(site.page_view_url(subpath)) 
+
+    new = latest_change['version']
+    old = int(new) - 1
+
+    return redirect(site.page_diff_url(subpath)
+                    + "?versions=%s,%s" % (old, new))
+
+@requires("WIKI_HISTORY")
+@allow_http("GET")
 @rendered_with("sites/site/page-diff.html")
 def page_diff(request, subpath):
     site = request.site
 
-    versions = request.GET['versions']
-    old, new = versions.split(',')
-    old = int(old)
-    new = int(new)
-
     try:
-        old = site.get_page(subpath, rev=old)
-        new = site.get_page(subpath, rev=new)
+        versions = request.GET['versions']
+        versions = sorted([int(i) for i in versions.split(',')])
+        old = versions[0]
+        new = versions[1]
+    except (KeyError, IndexError, TypeError):
+        # bad inputs, screw 'em
+        return redirect(site.history_url(subpath))
+
+    resource_unchanged = False
+    try:
+        try:
+            old_contents = site.get_page(subpath, rev=old)
+        except sven.ResourceUnchanged, e:
+            old = e.last_change
+            resource_unchanged = True
+        try:
+            new_contents = site.get_page(subpath, rev=new)
+        except sven.ResourceUnchanged, e:
+            new = e.last_change
+            resource_unchanged = True
     except sven.NotAFile:
         return redirect(site.directory_index_url(subpath))
     except sven.NoSuchResource:
-        return redirect(site.page_edit_url(subpath))
+        return redirect(site.history_url(subpath))
+    except sven.FutureRevision:
+        return redirect(site.history_url(subpath))
+    if resource_unchanged:
+        return redirect(site.page_diff_url(subpath)
+                        + "?versions=%s,%s" % (old, new))
 
-    contents = htmldiff(old, new)
+    contents = htmldiff(old_contents, new_contents)
     mimetype = mimetypes.guess_type(subpath)[0]
     return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
 
