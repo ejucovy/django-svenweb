@@ -1,6 +1,7 @@
 {% load repo %}
 <html>
 <head>
+  {% block head %}{% endblock %}
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js" type="text/javascript"></script>
   <link media="screen" rel="stylesheet" href="https://raw.github.com/jackmoore/colorbox/master/example1/colorbox.css" />
   <script src="https://raw.github.com/jackmoore/colorbox/master/colorbox/jquery.colorbox.js" type="text/javascript"></script>
@@ -22,9 +23,9 @@
 </head>
 <body>
 <div id="oc-tasktracker-wrapper">
-  <div id="oc-content-main" class="oc-content-main-fullWidth oc-wiki">
-    {% if request.site %}
+  <div id="oc-content-main" class="oc-content-main-fullWidth">
     <div class="oc-wiki">
+    {% if request.site %}
       <ul class="oc-headingBlock oc-wiki-headingBlock oc-bcrumb">
 	<li>
 	  <h1 class="oc-bcrumb-current">
@@ -48,7 +49,6 @@
 	<li><a href="{{site|page_history_url:path}}">History</a></li>
 	<li><a href=""></a></li>
       </ul>
-    </div>
     {% endif %}
 
     <div style="font-weight: bold; color: red;">
@@ -60,6 +60,8 @@
     {% block content %}
     
     {% endblock %}
+    </div>
   </div>
+
 </body>
 </html>

@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 
+{% load repo %}
+{% block head %}
+<style type="text/css">
+  #oc-content-container {
+    min-height: 57em !important;
+  }
+</style>
+{% endblock %}
 {% block content %}
 
 {% if not raw_edit %}
@@ -46,18 +54,37 @@ Xinha.addOnloadHandler(xinha_init);
 <div class="opencore_wysiwyg"></div>
 {% endif %}
 
-<h1>{{path}}</h1>
-
-<h1>Enter the page content</h1>
 <form method="POST" action="{{form_url}}" name="edit_form">
   {% csrf_token %}
-  <textarea style="width: 800px; height: 600px;"
-	    id="content" name="contents">{{contents}}</textarea>
-  <p>
-    <input type="submit" />
-  </p>
+  <div class="oc-wiki-edit">
+    <div class="oc-wiki-edit-content">
+      <textarea style="width: 800px; height: 600px;"
+		id="content" name="contents">{{contents}}</textarea>
+    </div>
+    <div class="oc-expander oc-js-expander oc-expander-open">
+      <h2 class="oc-bigText">
+	<a href="#oc-wiki-comment"
+	   class="oc-expanderLink oc-js-expander_open oc-js-expanderLink">Revision note</a>
+      </h2>
+      <div class="oc-js-expander-content">
+	<textarea name="comment" id="comment" rows="5" cols="80"></textarea>
+      </div>
+    </div>
+
+    <ul class="oc-actions oc-wiki-actions">
+      <li><input type="submit" value="Save"
+		 class="oc-button oc-chooseThis"></li>
+      <li>
+	or
+	<a href="{{site|page_view_url:path}}">Cancel</a>
+      </li>
+    </ul>
+    
+  </div>
+  
 </form>
 
+{% if False %}
 <h1>Or upload a file to this location</h1>
 <form method="post" action="{{form_url}}" name="upload_form" enctype="multipart/form-data"> 
   {% csrf_token %}
@@ -65,4 +92,6 @@ Xinha.addOnloadHandler(xinha_init);
   <input type="hidden" name="file" value="file" />
   <input type="submit" value="upload"/>
 </form>
+{% endif %}
+
 {% endblock %}
