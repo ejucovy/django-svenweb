@@ -205,9 +205,9 @@ class Wiki(models.Model):
         repo = BzrAccess(self.repo_path)
         return repo.read(path, rev=rev)
 
-    def write_page(self, path, contents, username=None):
+    def write_page(self, path, contents, msg=None, username=None):
         repo = BzrAccess(self.repo_path)
-        return repo.write(path, contents, author=username)
+        return repo.write(path, contents, msg=msg, author=username)
 
     def write_pages(self, files, prefix='', msg=None, username=None):
         repo = BzrAccess(self.repo_path)
