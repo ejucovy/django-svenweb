@@ -3,8 +3,8 @@
 {% block content %}
 
 {% if not raw_edit %}
+<!--
 <link rel="xinha" href="/static/xinha/" />
-<link rel="xinha_linker" href="{{site.xinha_linker_url}}" />
 <link rel="xinha_image_manager" href="{{site.xinha_image_manager_url}}?" />
 <script type="text/javascript">
   _editor_url  = jQuery("link[rel=xinha]").attr("href");
@@ -38,6 +38,12 @@ function xinha_init() {
 }
 Xinha.addOnloadHandler(xinha_init);
 </script>
+-->
+<link rel="xinha_linker" href="{{site.xinha_linker_url}}" />
+<script type="text/javascript">
+  _backend_url = jQuery("link[rel=xinha_linker]").attr("href");
+</script>
+<div class="opencore_wysiwyg"></div>
 {% endif %}
 
 <h1>{{path}}</h1>
@@ -46,7 +52,7 @@ Xinha.addOnloadHandler(xinha_init);
 <form method="POST" action="{{form_url}}" name="edit_form">
   {% csrf_token %}
   <textarea style="width: 800px; height: 600px;"
-	    id="contents" name="contents">{{contents}}</textarea>
+	    id="content" name="contents">{{contents}}</textarea>
   <p>
     <input type="submit" />
   </p>
