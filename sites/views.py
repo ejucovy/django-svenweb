@@ -325,6 +325,31 @@ def page_view(request, subpath):
     mimetype = mimetypes.guess_type(subpath)[0]
     return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
 
+from lxml.html.diff import htmldiff
+
+@requires("WIKI_HISTORY")
+@allow_http("GET")
+@rendered_with("sites/site/page-diff.html")
+def page_diff(request, subpath):
+    site = request.site
+
+    versions = request.GET['versions']
+    old, new = versions.split(',')
+    old = int(old)
+    new = int(new)
+
+    try:
+        old = site.get_page(subpath, rev=old)
+        new = site.get_page(subpath, rev=new)
+    except sven.NotAFile:
+        return redirect(site.directory_index_url(subpath))
+    except sven.NoSuchResource:
+        return redirect(site.page_edit_url(subpath))
+
+    contents = htmldiff(old, new)
+    mimetype = mimetypes.guess_type(subpath)[0]
+    return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
+
 @requires("WIKI_EDIT")
 @allow_http("GET", "POST")
 @rendered_with("sites/site/page-create.html")
