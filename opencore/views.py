@@ -58,4 +58,10 @@ def create_wiki(request):
     site = Wiki(name=name)
     site.save()
 
+    managers = request.POST.getlist("managers")
+    for manager in managers:
+        role = UserWikiLocalRoles(username=manager, wiki=site)
+        role.add_role("WikiManager")
+        role.save()
+
     return redirect(site.site_home_url())
