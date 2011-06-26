@@ -15,6 +15,10 @@ def edit_url(wiki, path):
     return wiki.page_edit_url(path)
 register.filter("page_edit_url", edit_url)
 
+@register.filter
+def page_create_url(wiki, path):
+    return wiki.page_create_url(path)
+
 def history_url(wiki, path):
     return wiki.history_url(path)
 register.filter("page_history_url", history_url)
@@ -29,7 +33,10 @@ def page_history_version_url(wiki, path):
 
 @register.filter
 def latest_change(wiki, path):
-    return wiki.latest_change(path)
+    try:
+        return wiki.latest_change(path)
+    except IndexError:
+        return None
 
 def last_modified_author(wiki, path):
     return wiki.last_modified_author(path)
