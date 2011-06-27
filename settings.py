@@ -1,6 +1,6 @@
 # Django settings for svenweb project.
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -14,8 +14,8 @@ here = os.path.abspath(".")
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': here + '/svenweb',              # Or path to database file if using sqlite3.
+        'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'svenweb',              # Or path to database file if using sqlite3.
         'USER': '',                      # Not used with sqlite3.
         'PASSWORD': '',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -99,11 +99,14 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.transaction.TransactionMiddleware',
     'svenweb.opencore.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'svenweb.opencore.middleware.SiteContextMiddleware',
 )
-OPENCORE_SHARED_SECRET_FILE = '/path/to/secret.txt'
+OPENCORE_SHARED_SECRET_FILE = '/srv/wiki.coactivate.socialplanning.org/var/secret.txt'
+OPENCORE_ADMIN_FILE = '/srv/wiki.coactivate.socialplanning.org/var/admin.txt'
+OPENCORE_SERVER = 'http://coactivate.org'
 
 AUTHENTICATION_BACKENDS = ()
 
@@ -131,6 +134,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
     'svenweb.sites',
+    'svenweb.opencore',
     'djsupervisor',
     'gunicorn',
 )
@@ -158,4 +162,4 @@ LOGGING = {
     }
 }
 
-SVENWEB_REPO_PATH = here + '/repos'
+SVENWEB_REPO_PATH = '/srv/wiki.socialplanning.org/var/repos'
