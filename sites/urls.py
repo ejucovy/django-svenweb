@@ -24,7 +24,7 @@ urlpatterns = patterns(
 
     url(r'^.create/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_create', name='page_create'),
     url(r'^.edit/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_edit', name='page_edit'),
-#    url(r'^.diff/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_diff', name='page_diff'),
+    url(r'^.diff/(?P<subpath>.*)/*$', 'svenweb.sites.views.page_diff', name='page_diff'),
     url(r'^.upload/(?P<subpath>.*)/*$', 'svenweb.sites.views.file_upload', name='file_upload'),
 
     url(r'^(?P<subpath>.*)/*$', 'svenweb.sites.views.page_view', name='page_view'),

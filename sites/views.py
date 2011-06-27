@@ -350,6 +350,50 @@ def page_view(request, subpath):
     mimetype = mimetypes.guess_type(subpath)[0]
     return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
 
+from lxml.html.diff import htmldiff
+
+@requires("WIKI_HISTORY")
+@allow_http("GET")
+@rendered_with("sites/site/page-diff.html")
+def page_diff(request, subpath):
+    site = request.site
+
+    try:
+        versions = request.GET['versions']
+        versions = sorted([int(i) for i in versions.split(',')])
+        old = versions[0]
+        new = versions[1]
+    except (KeyError, IndexError, TypeError):
+        # bad inputs, screw 'em
+        return redirect(site.history_url(subpath))
+
+    resource_unchanged = False
+    try:
+        try:
+            old_contents = site.get_page(subpath, rev=old)
+        except sven.ResourceUnchanged, e:
+            old = e.last_change
+            resource_unchanged = True
+        try:
+            new_contents = site.get_page(subpath, rev=new)
+        except sven.ResourceUnchanged, e:
+            new = e.last_change
+            resource_unchanged = True
+    except sven.NotAFile:
+        return redirect(site.directory_index_url(subpath))
+    except sven.NoSuchResource:
+        return redirect(site.history_url(subpath))
+    except sven.FutureRevision:
+        return redirect(site.history_url(subpath))
+    if resource_unchanged:
+        return redirect(site.page_diff_url(subpath)
+                        + "?versions=%s,%s" % (old, new))
+
+    # @@todo: raw diff? binary diff?
+    contents = htmldiff(old_contents, new_contents)
+    mimetype = mimetypes.guess_type(subpath)[0]
+    return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
+
 @requires("WIKI_EDIT")
 @allow_http("GET", "POST")
 @rendered_with("sites/site/page-create.html")
