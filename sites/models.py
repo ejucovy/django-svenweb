@@ -154,6 +154,10 @@ class Wiki(models.Model):
         return ('page_history_version', [subpath])
 
     @permalink
+    def latest_change_url(self, subpath=""):
+        return ("latest_change", [subpath])
+
+    @permalink
     def page_edit_url(self, subpath=""):
         return ('page_edit', [subpath])
 
@@ -168,6 +172,10 @@ class Wiki(models.Model):
     @permalink
     def history_url(self, subpath=""):
         return ('page_history', [subpath])
+
+    @permalink
+    def page_diff_url(self, subpath=""):
+        return ('page_diff', [subpath])
 
     @permalink
     def deploy_dashboard_url(self):
@@ -215,6 +223,21 @@ class Wiki(models.Model):
             repo.write("%s/%s" % (prefix, path),
                        contents, commit=False)
         return repo.commit(prefix, msg=msg, author=username)
+
+    def latest_change(self, path=""):
+        # @@todo: optimize this: only need to fetch one, not all
+        repo = BzrAccess(self.repo_path)
+        try:
+            contents = repo.log(path)
+        except sven.NoSuchResource:
+            return None
+
+        for obj in contents:
+            timestamp = obj['fields']['timestamp']
+            import datetime
+            obj['fields']['timestamp'] = \
+                datetime.datetime.fromtimestamp(timestamp)
+        return contents[0]['fields']
 
     def get_history(self, path='/'):
         repo = BzrAccess(self.repo_path)

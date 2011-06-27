@@ -354,6 +354,22 @@ from lxml.html.diff import htmldiff
 
 @requires("WIKI_HISTORY")
 @allow_http("GET")
+def latest_change(request, subpath):
+    site = request.site
+
+    latest_change = site.latest_change(subpath)
+    if latest_change is None:
+        # TODO: dunno where to send them
+        return redirect(site.page_view_url(subpath)) 
+
+    new = latest_change['version']
+    old = int(new) - 1
+
+    return redirect(site.page_diff_url(subpath)
+                    + "?versions=%s,%s" % (old, new))
+
+@requires("WIKI_HISTORY")
+@allow_http("GET")
 @rendered_with("sites/site/page-diff.html")
 def page_diff(request, subpath):
     site = request.site

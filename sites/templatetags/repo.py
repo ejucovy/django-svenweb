@@ -23,3 +23,17 @@ def history_url(wiki, path):
     return wiki.history_url(path)
 register.filter("page_history_url", history_url)
 
+@register.filter
+def latest_change_url(wiki, path):
+    return wiki.latest_change_url(path)
+
+@register.filter
+def page_history_version_url(wiki, path):
+    return wiki.history_version_url(path)
+
+@register.filter
+def latest_change(wiki, path):
+    try:
+        return wiki.latest_change(path)
+    except IndexError:
+        return None
