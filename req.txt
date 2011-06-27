@@ -8,3 +8,4 @@ django-supervisor
 github2
 PIL
 -e git+git@github.com:socialplanning/libopencore.git#egg=libopencore
+topp.utils
