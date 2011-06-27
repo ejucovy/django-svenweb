@@ -369,7 +369,11 @@ def file_upload(request, subpath):
 
     file_path = file_path.rstrip('/') + '/' + filename.lstrip('/')
 
-    site.write_page(file_path, contents)
+    msg = request.POST.get("comment", None)
+    site.write_page(file_path, contents, 
+                    username=request.user.username,
+                    msg=msg)
+
     return redirect(site.page_view_url(file_path))
 
 @requires("WIKI_EDIT")
