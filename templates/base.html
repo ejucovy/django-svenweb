@@ -6,10 +6,13 @@
   <link media="screen" rel="stylesheet" href="https://raw.github.com/jackmoore/colorbox/master/example1/colorbox.css" />
   <script src="https://raw.github.com/jackmoore/colorbox/master/colorbox/jquery.colorbox.js" type="text/javascript"></script>
   <link href="http://www.coactivate.org/projects/opencore/tasks/stylesheets/list.css" media="screen" rel="Stylesheet" type="text/css" />
+  <script src="/static/asmselect/jquery.asmselect.js"></script>
+  <link rel="stylesheet" type="text/css" href="/static/asmselect/jquery.asmselect.css" />
+
   <script type="text/javascript">
   $(window).load(function() {
-    $("select[multiple].asmselect").asmSelect();
-    $(".help").each(function() {
+    jQuery("select[multiple].asmselect").asmSelect();
+    jQuery(".help").each(function() {
       $(this).css("display", "inline");
       $("<img/>").attr("src", "/static/images/help.png")
         .appendTo(this);
