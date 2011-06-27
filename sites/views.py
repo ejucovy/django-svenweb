@@ -288,7 +288,7 @@ def page_history(request, subpath):
     except sven.NoSuchResource:
         return redirect(site.page_edit_url(subpath))
         
-    return dict(site=site, history=history)
+    return dict(site=site, history=history, path=subpath)
 
 @requires("WIKI_VIEW")
 @allow_http("GET")
@@ -352,7 +352,7 @@ def file_upload(request, subpath):
     site = request.site
 
     if request.method == "GET":
-        return {'site': site}
+        return {'site': site, 'path': subpath}
 
     file = request.FILES['file']
     contents = file.read()
