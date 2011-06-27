@@ -1,7 +1,8 @@
 from django.http import (HttpResponse, HttpResponseForbidden, 
                          HttpResponseRedirect as redirect)
 from djangohelpers.lib import rendered_with, allow_http
-from svenweb.sites.models import Wiki
+from svenweb.sites.models import (Wiki,
+                                  UserWikiLocalRoles)
 
 def requires_project_admin(func):
     def inner(request, *args, **kw):
@@ -18,7 +19,8 @@ def home(request):
         return create_wiki(request)
 
     project = request.META['HTTP_X_OPENPLANS_PROJECT']
-    wikis = Wiki.objects.filter(name__startswith=project+'/')
+    wikis = [i for i in Wiki.objects.filter(name__startswith=project+'/')
+             if i.viewable(request)]
 
     policy = request.get_security_policy()
 
@@ -53,7 +55,9 @@ def home(request):
 @requires_project_admin
 @allow_http("POST")
 def create_wiki(request):
-    name = request.POST['name']
+    name = request.POST.get('name') or "default-wiki"
+    from django.template.defaultfilters import slugify
+    name = slugify(name)
     name = request.META['HTTP_X_OPENPLANS_PROJECT'] + '/' + name
     site = Wiki(name=name)
     site.save()
@@ -63,5 +67,40 @@ def create_wiki(request):
         role = UserWikiLocalRoles(username=manager, wiki=site)
         role.add_role("WikiManager")
         role.save()
+
+    member_permissions = int(request.POST.get("member_perms", "-1"))
+    other_permissions = int(request.POST.get("other_perms", "-1"))
+
+    from svenweb.sites.models import (get_permission_constraints, PERMISSIONS,
+                                      WikiRolePermissions)
+
+    member_permissions = PERMISSIONS[:member_permissions + 1]
+    other_permissions = PERMISSIONS[:other_permissions + 1]
+
+    member_permissions = [i[0] for i in member_permissions 
+                          if i[0] in get_permission_constraints(
+            request.get_security_policy(),
+            "ProjectMember")]
+
+    other_permissions = [i[0] for i in other_permissions 
+                          if i[0] in get_permission_constraints(
+            request.get_security_policy(),
+            "Authenticated")]
+
+    p = WikiRolePermissions(wiki=site, role="ProjectMember")
+    p.set_permissions(member_permissions)
+    p.save()
+
+    p = WikiRolePermissions(wiki=site, role="Authenticated")
+    p.set_permissions(other_permissions)
+    p.save()
+
+    other_permissions = [i for i in other_permissions 
+                          if i in get_permission_constraints(
+            request.get_security_policy(),
+            "Anonymous")]
+    p = WikiRolePermissions(wiki=site, role="Anonymous")
+    p.set_permissions(other_permissions)
+    p.save()
 
     return redirect(site.site_home_url())
