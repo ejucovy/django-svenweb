@@ -330,6 +330,7 @@ def page_create(request, subpath):
     if request.method == "POST":
         path = request.POST['path']
 
+        # @@todo: don't slugify for raw wikis? dunno
         from django.template.defaultfilters import slugify
         path = '/'.join(slugify(i) for i in path.split('/'))
         
