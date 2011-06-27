@@ -92,7 +92,9 @@ def get_project_role(request):
 
 def get_role(request, wiki):
     if hasattr(request, '_cached_svenweb_role'):
-        return request._cached_svenweb_role
+        if wiki.pk in request._cached_svenweb_role:
+            return request._cached_svenweb_role[wiki.pk]
+    request._cached_svenweb_role = {}
 
     roles = set()
     roles.add(get_project_role(request))
@@ -103,12 +105,14 @@ def get_role(request, wiki):
     roles.update(local_roles)
 
     role = get_highest_role(roles)
-    request._cached_svenweb_role = role
+    request._cached_svenweb_role[wiki.pk] = role
     return role
 
 def get_permissions(request, wiki):
     if hasattr(request, '_cached_svenweb_permissions'):
-        return request._cached_svenweb_permissions
+        if wiki.pk in request._cached_svenweb_permissions:
+            return request._cached_svenweb_permissions[wiki.pk]
+    request._cached_svenweb_permissions = {}
 
     policy = get_security_policy(request)
     role = get_role(request, wiki)
@@ -122,7 +126,8 @@ def get_permissions(request, wiki):
         permissions.save()
     permissions = permissions.get_permissions()
     permissions = apply_constraints(permissions, constraints)
-    request._cached_svenweb_permissions = permissions
+
+    request._cached_svenweb_permissions[wiki.pk] = permissions
     return permissions
 
 class LazyUser(object):
