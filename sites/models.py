@@ -72,7 +72,7 @@ class Wiki(models.Model):
             raise TypeError("Cannot convert to bool: %s" % value)
 
     def wiki_type(self):
-        return self.get_option("wiki_type", "raw")
+        return self.get_option("wiki_type", "managedhtml")
 
     def custom_domain(self):
         return self.get_option("custom_domain", "")
@@ -367,8 +367,8 @@ PERMISSIONS = (
     ("WIKI_HISTORY", "view wiki history"),
     ("WIKI_EDIT", ("edit wiki content, create new pages "
                    "and revert to old versions")),
-    ("WIKI_CONFIGURE", "change wiki settings"),
     ("WIKI_DEPLOY", "manually redeploy the wiki's website"),
+    ("WIKI_CONFIGURE", "change wiki settings"),
     )
 
 LOCAL_ROLES = [
