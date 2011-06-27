@@ -290,6 +290,33 @@ def page_history(request, subpath):
         
     return dict(site=site, history=history, path=subpath)
 
+@requires("WIKI_HISTORY")
+@allow_http("GET")
+@rendered_with("sites/site/page-history-version.html")
+def page_history_version(request, subpath):
+    site = request.site
+
+    rev = request.GET.get("version_id")
+    try:
+        contents = site.get_page(subpath, rev=rev)
+    except sven.ResourceUnchanged, e:
+        return redirect(site.history_version_url(subpath)
+                        + "?version_id=%s" % e.last_change)
+    except sven.NotAFile: # TODO: this should redirect to a historical index view
+        return redirect(site.directory_index_url(subpath))
+    except sven.NoSuchResource:
+        # if the resource doesn't exist, we'll just redirect to
+        # the current view url and let that handle it .. if it
+        # still doesn't exist the user will be doubly redirected
+        # to an edit url.
+        # but really we should provide more information - last revision
+        # when the page existed, or next revision when it came into being
+        return redirect(site.page_view_url(subpath))
+
+    mimetype = mimetypes.guess_type(subpath)[0]
+    return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
+
+
 @requires("WIKI_VIEW")
 @allow_http("GET")
 @rendered_with("sites/site/page-index.html")

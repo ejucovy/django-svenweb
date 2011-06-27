@@ -150,6 +150,10 @@ class Wiki(models.Model):
         return ('page_view', [subpath])
 
     @permalink
+    def history_version_url(self, subpath=""):
+        return ('page_history_version', [subpath])
+
+    @permalink
     def page_edit_url(self, subpath=""):
         return ('page_edit', [subpath])
 
@@ -197,9 +201,9 @@ class Wiki(models.Model):
             paths.append(page['href'])
         return paths
 
-    def get_page(self, path='/'):
+    def get_page(self, path='/', rev=None):
         repo = BzrAccess(self.repo_path)
-        return repo.read(path)
+        return repo.read(path, rev=rev)
 
     def write_page(self, path, contents, msg=None, username=None):
         repo = BzrAccess(self.repo_path)
