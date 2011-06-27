@@ -483,7 +483,7 @@ def page_edit(request, subpath):
             file = request.FILES['file']
             contents = file.read()
         else:
-            contents = request.POST['content']
+            contents = request.POST['contents']
 
         msg = request.POST.get("comment") or None
 
