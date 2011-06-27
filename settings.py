@@ -12,6 +12,9 @@ MANAGERS = ADMINS
 import os
 here = os.path.abspath(".")
 
+from svenweb.opencore.permalink import permalink_builder
+WIKI_PERMALINK_BUILDER = permalink_builder
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.

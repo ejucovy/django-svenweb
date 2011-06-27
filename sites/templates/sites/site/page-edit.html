@@ -28,7 +28,7 @@ var xinha_editors;
 var xinha_plugins;
 var xinha_config;
 function xinha_init() {
-  xinha_editors = xinha_editors || ["contents"];
+  xinha_editors = xinha_editors || ["content"];
   xinha_plugins = xinha_plugins || [
     "Linker",
     "ImageManager"
@@ -89,6 +89,8 @@ Xinha.addOnloadHandler(xinha_init);
 <form method="post" action="{{form_url}}" name="upload_form" enctype="multipart/form-data"> 
   {% csrf_token %}
   <input type="file" name="file"/>
+  <h2>Revision Note</h2>
+  <textarea name="comment" id="comment" rows="5" cols="80"></textarea>
   <input type="hidden" name="file" value="file" />
   <input type="submit" value="upload"/>
 </form>
