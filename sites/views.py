@@ -329,6 +329,10 @@ def page_create(request, subpath):
 
     if request.method == "POST":
         path = request.POST['path']
+
+        from django.template.defaultfilters import slugify
+        path = '/'.join(slugify(i) for i in path.split('/'))
+        
         path = subpath.rstrip('/') + '/' + path.strip('/')
 
         # @@todo: do something else if the page already exists, i guess?
