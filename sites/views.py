@@ -383,8 +383,14 @@ def page_edit(request, subpath):
             file = request.FILES['file']
             contents = file.read()
         else:
-            contents = request.POST['contents']
-        site.write_page(subpath, contents)
+            contents = request.POST['content']
+
+        msg = request.POST.get("comment") or None
+
+        site.write_page(subpath, contents, 
+                        msg=msg,
+                        username=request.user.username)
+
         return redirect(site.page_view_url(subpath))
 
     try:
