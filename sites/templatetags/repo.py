@@ -19,6 +19,10 @@ register.filter("page_edit_url", edit_url)
 def page_create_url(wiki, path):
     return wiki.page_create_url(path)
 
+@register.filter
+def directory_index_url(wiki, path):
+    return wiki.directory_index_url(path)
+
 def history_url(wiki, path):
     return wiki.history_url(path)
 register.filter("page_history_url", history_url)

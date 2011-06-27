@@ -1,12 +1,21 @@
 {% extends "base.html" %}
+{% load repo %}
 
 {% block content %}
 <h1>{{path}}</h1>
 
 <ul>
 {% for subpath in subpaths %}
-<li><a href="/.index/{{subpath}}">{{subpath}}</a> (<a href="/.edit/{{subpath}}">edit it</a>)</li>
+<li><a href="{{site|directory_index_url:subpath}}">{{subpath}}</a>
+  (<a href="{{site|page_edit_url:subpath}}">edit it</a>)</li>
 {% endfor %}
 </ul>
+
+<h2>Create a new page</h2>
+<form method="POST" action="{{site|page_create_url:path}}">
+  {% csrf_token %}
+  Page name: <input type="text" name="path" />
+  <input type="submit" value="Add page" />
+</form>
 
 {% endblock %}
