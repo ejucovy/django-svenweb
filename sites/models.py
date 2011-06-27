@@ -9,6 +9,7 @@ from sven.bzr import BzrAccess
 from svenweb.sites.github import GithubSite
 from svenweb.sites.compiler import WikiCompiler
 from StringIO import StringIO
+from svenweb.sites.utils import permalink
 
 SESSION_KEY = 'svenweb.sites.site'
 UNSET_KEY = 'svenweb.unset_site'
@@ -120,62 +121,61 @@ class Wiki(models.Model):
             raise AssertionError("Unknown wiki type %s" % self.wiki_type())
         return subpath
 
-    @models.permalink
+    @permalink
     def upload_file_url(self):
-        return ('file_upload', [self.name.split('/')[1],
-                                self.raw_files_path.strip('/')])
+        return ('file_upload', [self.raw_files_path.strip('/')])
 
-    @models.permalink
+    @permalink
     def site_home_url(self):
-        return ('site_home', [self.name.split('/')[1]])
+        return ('site_home', [])
 
-    @models.permalink
+    @permalink
     def page_view_url(self, subpath=""):
-        return ('page_view', [self.name.split('/')[1], subpath])
+        return ('page_view', [subpath])
 
-    @models.permalink
+    @permalink
     def history_version_url(self, subpath=""):
-        return ('page_history_version', [self.name.split('/')[1], subpath])
+        return ('page_history_version', [subpath])
 
-    @models.permalink
+    @permalink
     def latest_change_url(self, subpath=""):
-        return ("latest_change", [self.name.split('/')[1], subpath])
+        return ("latest_change", [subpath])
 
-    @models.permalink
-    def page_edit_url(self, subpath="/"):
-        return ('page_edit', [self.name.split('/')[1], subpath])
+    @permalink
+    def page_edit_url(self, subpath=""):
+        return ('page_edit', [subpath])
 
-    @models.permalink
+    @permalink
     def page_create_url(self, subpath=""):
-        return ('page_create', [self.name.split('/')[1], subpath])
+        return ('page_create', [subpath])
 
-    @models.permalink
+    @permalink
     def directory_index_url(self, subpath=""):
-        return ('page_index', [self.name.split('/')[1], subpath])
+        return ('page_index', [subpath])
 
-    @models.permalink
+    @permalink
     def history_url(self, subpath=""):
-        return ('page_history', [self.name.split('/')[1], subpath])
+        return ('page_history', [subpath])
 
-    @models.permalink
+    @permalink
     def page_diff_url(self, subpath=""):
-        return ('page_diff', [self.name.split('/')[1], subpath])
+        return ('page_diff', [subpath])
 
-    @models.permalink
+    @permalink
     def deploy_dashboard_url(self):
-        return ('site_deploy', [self.name.split('/')[1]])
+        return ('site_deploy', [])
 
-    @models.permalink
+    @permalink
     def wiki_configure_url(self):
-        return ('site_configure', [self.name.split('/')[1]])
+        return ('site_configure', [])
 
-    @models.permalink
+    @permalink
     def xinha_linker_url(self):
-        return ('xinha_linker', [self.name.split('/')[1]])
+        return ('xinha_linker', [])
 
-    @models.permalink
+    @permalink
     def xinha_image_manager_url(self):
-        return ('xinha_image_manager', [self.name.split('/')[1]])
+        return ('xinha_image_manager', [])
 
     @property
     def repo_path(self):
