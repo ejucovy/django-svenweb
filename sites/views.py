@@ -465,7 +465,11 @@ def file_upload(request, subpath):
 
     file_path = file_path.rstrip('/') + '/' + filename.lstrip('/')
 
-    site.write_page(file_path, contents, username=request.user.username)
+    msg = request.POST.get("comment", None)
+    site.write_page(file_path, contents, 
+                    username=request.user.username,
+                    msg=msg)
+
     return redirect(site.page_view_url(file_path))
 
 @requires("WIKI_EDIT")
@@ -479,11 +483,14 @@ def page_edit(request, subpath):
             file = request.FILES['file']
             contents = file.read()
         else:
-            contents = request.POST['contents']
-            msg = request.POST.get("comment") or None
+            contents = request.POST['content']
+
+        msg = request.POST.get("comment") or None
+
         site.write_page(subpath, contents, 
                         msg=msg,
                         username=request.user.username)
+
         return redirect(site.page_view_url(subpath))
 
     try:
