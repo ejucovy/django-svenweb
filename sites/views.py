@@ -308,6 +308,7 @@ def page_index(request, subpath):
 
 @requires("WIKI_VIEW")
 @allow_http("GET")
+@rendered_with("sites/site/page-view.html")
 def page_view(request, subpath):
     site = request.site
 
@@ -318,8 +319,9 @@ def page_view(request, subpath):
     except sven.NoSuchResource:
         return redirect(site.page_edit_url(subpath))
 
+    # @@todo: raw view? binary files?
     mimetype = mimetypes.guess_type(subpath)[0]
-    return HttpResponse(contents, mimetype=mimetype)
+    return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
 
 @requires("WIKI_EDIT")
 @allow_http("GET", "POST")
