@@ -27,15 +27,18 @@
   <!-- Permissions --> 
   <div id="permission_help"> 
     
-    <p>You can create wikis that match your particular needs by choosing the options that best work for you.</p> 
+    <p>You can create wikis that match your particular needs by choosing the
+      options that best work for you.</p> 
     
-    <ul>
-      <li>If a set of tasks requires more direction, create a manger-directed list in which members can views tasks that have been assigned to them or <b>claim tasks</b> that have been left unassigned.</li> 
-      
-      <li>For a more collaborative project, allow members to <b>create new tasks</b> and <b>edit tasks</b>.</li> 
-    </ul><p> The options further down the list add to or override those options further up. If you select to allow team members to edit any task, for instance, then they can also view this list, and claim tasks, and create new tasks. If you choose to allow non-members to create new tasks then they can also view this list and claim tasks.</p> 
+    <p> The options further down the list add to or override those
+      options further up. If you select to allow team members to edit
+      wiki pages, for instance, then they can also view this wiki and
+      its history. If you choose to allow non-members to edit wiki pages
+      then they can also view this wiki and its history.</p> 
     
-    <p>The options are also designed to avoid incompatible choices. You cannot, for example, allow non-members to edit any tasks but restrict team members to only viewing the list.</p> 
+    <p>The options are also designed to avoid incompatible choices. You cannot, 
+      for example, allow non-members to edit wiki pages but restrict team members
+      to only viewing the wiki.</p> 
     
   </div> 
   
@@ -43,12 +46,15 @@
     <tbody>
       <tr valign="top" padding="50px;">
 	<td width="50%"> 
-	  <h2>coactivate-site-copy's project members can</h2>
+	  <h2>This project's members can</h2>
 	  <ul id="member_permissions">
 	    {% for permission in member_permissions %}
 	    <li>
 	      <input type="radio" name="member_perms"
-		     value="{{permission.0}}">{{permission.1}}</radio>
+		     id="member_permission_{{permission.0}}"
+		     {% if forloop.last %}checked="checked"{% endif %}
+		     value="{{permission.0}}" />
+	      <label for="member_permission_{{permission.0}}">{{permission.1}}</label>
 	    </li>
 	    {% endfor %}
 	  </ul>
@@ -61,7 +67,10 @@
 	    {% for permission in other_permissions %}
 	    <li>
 	      <input type="radio" name="other_perms"
-		     value="{{permission.0}}">{{permission.1}}</radio>
+		     id="other_permission_{{permission.0}}"
+		     {% if forloop.last %}checked="checked"{% endif %}
+		     value="{{permission.0}}" />
+	      <label for="other_permission_{{permission.0}}">{{permission.1}}</label>
 	    </li>
 	    {% endfor %}
 	  </ul>
@@ -69,7 +78,39 @@
  
       </tr>
     </tbody>
-  </table><!-- these will be filled in by htmlfill, and then deleted by js -->
+  </table>
+  <script type="text/javascript">
+    $(window).load(function() {
+      $("input[type=radio][name=member_perms]").change(function() {
+        var value = $(this).val();
+        $("input[type=radio][name=other_perms]").each(function() {
+          if( $(this).val() > value ) {
+            $(this).attr("disabled", "disabled");
+          } else {
+            $(this).removeAttr("disabled");
+          }
+        });
+        if( $("input[name=other_perms]:checked").val() > value ) {
+          $("input[name=other_perms][value="+value+"]").attr("checked", "checked");
+        }
+      });
+
+      $("input[type=radio][name=other_perms]").change(function() {
+        var value = $(this).val();
+        $("input[type=radio][name=member_perms]").each(function() {
+          if( $(this).val() < value ) {
+            $(this).attr("disabled", "disabled");
+          } else {
+            $(this).removeAttr("disabled");
+          }
+        });
+        if( $("input[name=member_perms]:checked").val() <  value ) {
+          $("input[name=member_perms][value="+value+"]").attr("checked", "checked");
+        }
+      });
+
+    });
+  </script>
 
   <hr>
 </div> 

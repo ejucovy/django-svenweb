@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 
 {% block head %}
-<script src="/static/asmselect/jquery.asmselect.js"></script>
-<link rel="stylesheet" type="text/css" href="/static/asmselect/jquery.asmselect.css" />
+<style type="text/css">
+  #oc-content-container {
+    min-height: 70em !important;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
-<h1>Welcome to the site, {{request.user}}</h1>
-
+{% if wikis|length %}
 <h2>Your wikis</h2>
 <ul>
   {% for wiki in wikis %}
@@ -16,6 +18,9 @@
   </li>
   {% endfor %}
 </ul>
+{% else %}
+No wikis have been created yet.
+{% endif %}
 
 {% if request.get_project_role == "ProjectAdmin" %}
 <h2>Create a wiki</h2>
