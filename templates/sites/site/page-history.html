@@ -5,14 +5,13 @@
 {% block content %}
 <div class="oc-headingBlock oc-boxy">
 <h2>All versions of &ldquo;{{path|deslug}}&rdquo;</h2>
-{% with site|last_modified_author:path as username %}
-{% with site|last_modified_date:path as date %}
+{% with site|latest_change:path as latest_change %}
 <span class="oc-headingContext oc-discreetText">
   {{history|length}} versions total.  Last edit performed by
-  <a href="http://www.coactivate.org/people/{{username}}">{{username}}</a>,
-  <abbr title="{{date}}">{{date|date}}</abbr>.
+  <a href="http://www.coactivate.org/people/{{latest_change.author}}">{{latest_change.author}}</a>,
+  <abbr title="{{latest_change.timestamp}}">{{latest_change.timestamp|date}}</abbr>.
 </span>
-{% endwith %}{% endwith %}
+{% endwith %}
 </div>
 
 <div class="oc-lineup">
