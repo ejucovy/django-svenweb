@@ -250,7 +250,7 @@ class Wiki(models.Model):
                 datetime.datetime.fromtimestamp(timestamp)
         return contents
 
-    def baked_content(self, content):
+    def baked_content(self, content, content_href=None):
         """
         Applies any transformations to the given page content
         """
@@ -259,17 +259,15 @@ class Wiki(models.Model):
             from django.template.defaultfilters import slugify
             href = slugify(link_text)
             try:
-                self.latest_change(href)
-            except IndexError:
-                exists = False
+                exists = self.latest_change(href) is not None
             except:
-                raise
-            else:
-                exists = True
+                exists = False
             if exists:
-                return '<a href="%s">%s</a>' % (href, link_text)
+                return '<a class="wicked_resolved" href="%s">%s</a>' % (href, link_text)
             else:
-                return '<a class="new-page" href="%s">%s +</a>' % (href, link_text)
+                if content_href is not None:
+                    href += "?created_from=%s" % content_href
+                return '<a class="wickedadd" href="%s">%s +</a>' % (href, link_text)
         return re.sub(wiki_link_text, treat_link_text, content)        
 
 from django.conf import settings

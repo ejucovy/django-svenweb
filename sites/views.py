@@ -349,9 +349,13 @@ def page_view(request, subpath):
     except sven.NotAFile:
         return redirect(site.directory_index_url(subpath))
     except sven.NoSuchResource:
-        return redirect(site.page_edit_url(subpath))
+        url = site.page_edit_url(subpath)
+        if request.GET.items():
+            import urllib
+            url += "?%s" % urllib.urlencode(request.GET.items())
+        return redirect(url)
 
-    contents = site.baked_content(contents)
+    contents = site.baked_content(contents, content_href=subpath)
     mimetype = mimetypes.guess_type(subpath)[0]
     return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
 
