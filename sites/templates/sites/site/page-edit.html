@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% if not raw_edit %}
+<script type="text/javascript">
+  _editor_url  = "/static/xinha/"
+  _editor_lang = "en";   
+  _editor_skin = "silva";
+  _editor_icons = "classic";
+  _linker_backend_url = "/.xinha/linker/";
+  _image_manager_backend_url = "/.xinha/image_manager/?";
+</script>
+<script type="text/javascript" src="/static/xinha/XinhaCore.js"></script>
+<script type="text/javascript">
+var xinha_editors;
+var xinha_plugins;
+var xinha_config;
+function xinha_init() {
+  xinha_editors = xinha_editors || ["content"];
+  xinha_plugins = xinha_plugins || [
+    "Linker",
+    "ImageManager"
+  ];
+  if( !Xinha.loadPlugins(xinha_plugins, xinha_init) ) return;
+  xinha_config = xinha_config || new Xinha.Config();
+  xinha_config.width = "800px";
+  xinha_config.height = "600px";
+  xinha_config.baseHref = "/";
+  xinha_config.autofocus = true;
+  xinha_config.Linker.backend = _linker_backend_url;
+  xinha_config.ImageManager.backend = _image_manager_backend_url;
+  xinha_editors = Xinha.makeEditors(xinha_editors, xinha_config, xinha_plugins);
+  Xinha.startEditors(xinha_editors);
+}
+Xinha.addOnloadHandler(xinha_init);
+</script>
+{% endif %}
+
+<h1>{{path}}</h1>
+
+<h1>Enter the page content</h1>
+<form method="POST" action="{{form_url}}" name="edit_form">
+  {% csrf_token %}
+  <textarea style="width: 800px; height: 600px;"
+	    id="content" name="contents">{{contents}}</textarea>
+  <h2>Revision Note</h2>
+  <textarea name="comment" id="comment" rows="5" cols="80"></textarea>
+  <p>
+    <input type="submit" />
+  </p>
+</form>
+
+<h1>Or upload a file to this location</h1>
+<form method="post" action="{{form_url}}" name="upload_form" enctype="multipart/form-data"> 
+  {% csrf_token %}
+  <input type="file" name="file"/>
+  <h2>Revision Note</h2>
+  <textarea name="comment" id="comment" rows="5" cols="80"></textarea>
+  <input type="hidden" name="file" value="file" />
+  <input type="submit" value="upload"/>
+</form>
+{% endblock %}
