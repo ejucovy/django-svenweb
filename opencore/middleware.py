@@ -5,13 +5,7 @@ from django.http import HttpResponseNotFound
 from libopencore import auth
 from libopencore.query_project import (get_users_for_project,
                                        admin_post)
-from svenweb.sites.models import (Wiki,
-                                  UserWikiLocalRoles,
-                                  WikiRolePermissions,
-                                  get_highest_role,
-                                  get_permission_constraints,
-                                  apply_constraints,
-                                  )
+from svenweb.sites.models import Wiki
 from topp.utils.memorycache import cache as memorycache
 
 def get_user(request):
@@ -66,13 +60,13 @@ def get_project_members(request):
     request._cached_opencore_project_members = members
     return members
 
-def get_project_role(request):
+def get_project_role(request, wiki=None):
     if hasattr(request, '_cached_opencore_project_role'):
         return request._cached_opencore_project_role
 
     if request.user.is_anonymous():
-        request._cached_opencore_project_role = "Anonymous"
-        return "Anonymous"
+        request._cached_opencore_project_role = []
+        return []
 
     users = _fetch_user_roles(request.META['HTTP_X_OPENPLANS_PROJECT'])
 
@@ -83,52 +77,11 @@ def get_project_role(request):
             remote_roles = member['roles']
             break
     if not found:
-        request._cached_opencore_project_role = "Authenticated"
-        return "Authenticated"
+        request._cached_opencore_project_role = []
+        return []
     else:
-        role = get_highest_role(remote_roles)
-        request._cached_opencore_project_role = role
-        return role
-
-def get_role(request, wiki):
-    if hasattr(request, '_cached_svenweb_role'):
-        if wiki.pk in request._cached_svenweb_role:
-            return request._cached_svenweb_role[wiki.pk]
-    request._cached_svenweb_role = {}
-
-    roles = set()
-    roles.add(get_project_role(request))
-
-    local_roles, _ = UserWikiLocalRoles.objects.get_or_create(
-        username=request.user.username, wiki=wiki)
-    local_roles = local_roles.get_roles()
-    roles.update(local_roles)
-
-    role = get_highest_role(roles)
-    request._cached_svenweb_role[wiki.pk] = role
-    return role
-
-def get_permissions(request, wiki):
-    if hasattr(request, '_cached_svenweb_permissions'):
-        if wiki.pk in request._cached_svenweb_permissions:
-            return request._cached_svenweb_permissions[wiki.pk]
-    request._cached_svenweb_permissions = {}
-
-    policy = get_security_policy(request)
-    role = get_role(request, wiki)
-    constraints = get_permission_constraints(policy, role)
-    try:
-        permissions = WikiRolePermissions.objects.get(wiki=wiki, role=role)
-    except WikiRolePermissions.DoesNotExist:
-        permissions = WikiRolePermissions(wiki=wiki, role=role)
-        # The constraints serve fine as defaults too.
-        permissions.set_permissions(constraints)
-        permissions.save()
-    permissions = permissions.get_permissions()
-    permissions = apply_constraints(permissions, constraints)
-
-    request._cached_svenweb_permissions[wiki.pk] = permissions
-    return permissions
+        request._cached_opencore_project_role = remote_roles
+        return remote_roles
 
 class LazyUser(object):
     def __get__(self, request, obj_type=None):
@@ -142,8 +95,6 @@ class AuthenticationMiddleware(object):
         request.get_project_role = lambda: get_project_role(request)
         request.get_project_members = lambda: get_project_members(request)
         request.get_security_policy = lambda: get_security_policy(request)
-        request.get_role = lambda x: get_role(request, x)
-        request.get_permissions = lambda x: get_permissions(request, x)
         return None
 
 class SiteContextMiddleware(object):

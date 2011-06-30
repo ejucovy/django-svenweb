@@ -20,6 +20,7 @@ from svenweb.opencore.security import get_highest_role
 
 SVENWEB_PERMISSION_CONSTRAINT_GETTER = get_permission_constraints
 SVENWEB_HIGHEST_ROLE_FINDER = get_highest_role
+SVENWEB_EXTRA_ROLE_GETTER = lambda req, wiki: req.get_project_role()
 
 DATABASES = {
     'default': {
@@ -111,6 +112,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.transaction.TransactionMiddleware',
     'svenweb.opencore.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'svenweb.sites.middleware.SvenwebSecurityMiddleware',
     'svenweb.opencore.middleware.SiteContextMiddleware',
 )
 OPENCORE_SHARED_SECRET_FILE = '/srv/wiki.coactivate.socialplanning.org/var/secret.txt'
