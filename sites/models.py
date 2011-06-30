@@ -250,6 +250,22 @@ class Wiki(models.Model):
                 datetime.datetime.fromtimestamp(timestamp)
         return contents
 
+    def new_page_template(self, ctx={}):
+        """
+        Render a template for the default new page content in the editor
+        """
+        from django.template import Template, Context
+        
+        t = Template("""
+{% if created_from %}
+<p>
+Back to (({{created_from.title}}))
+</p>
+{% endif %}
+""")
+        ctx = Context(ctx)
+        return t.render(ctx)
+
     def baked_content(self, content, content_href=None):
         """
         Applies any transformations to the given page content

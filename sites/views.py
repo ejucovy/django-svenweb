@@ -501,7 +501,14 @@ def page_edit(request, subpath):
     try:
         contents = site.get_page(subpath)
     except sven.NoSuchResource:  # this is fine, we can edit a new file
-        contents = ""
+        created_from = request.GET.get('created_from')
+        if created_from:
+            created_from = {'title': created_from.replace("-", " ").title(),
+                            'path': created_from}
+        contents = site.new_page_template({
+                'path': subpath,
+                'created_from': created_from,
+                })
     except sven.NotAFile:  # this is not fine, we can't edit a directory
         # @@todo: maybe check for user-supplied index page?
         return redirect(site.directory_index_url(subpath))
