@@ -24,7 +24,8 @@ def home(request):
 
     policy = request.get_security_policy()
 
-    from svenweb.sites.models import PERMISSION_CONSTRAINTS, PERMISSIONS
+    from svenweb.sites.models import PERMISSIONS
+    from svenweb.opencore.security import PERMISSION_CONSTRAINTS
     member_constraints = PERMISSION_CONSTRAINTS[policy]["ProjectMember"]
     other_constraints = PERMISSION_CONSTRAINTS[policy]["Authenticated"]
 
