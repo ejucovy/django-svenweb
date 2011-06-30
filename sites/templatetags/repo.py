@@ -16,12 +16,12 @@ def edit_url(wiki, path):
 register.filter("page_edit_url", edit_url)
 
 @register.filter
-def index_url(wiki, path):
-    return wiki.directory_index_url(path)
-
-@register.filter
 def page_create_url(wiki, path):
     return wiki.page_create_url(path)
+
+@register.filter
+def directory_index_url(wiki, path):
+    return wiki.directory_index_url(path)
 
 def history_url(wiki, path):
     return wiki.history_url(path)
@@ -41,14 +41,6 @@ def latest_change(wiki, path):
         return wiki.latest_change(path)
     except IndexError:
         return None
-
-def last_modified_author(wiki, path):
-    return wiki.last_modified_author(path)
-register.filter("last_modified_author", last_modified_author)
-
-def last_modified_date(wiki, path):
-    return wiki.last_modified_date(path)
-register.filter("last_modified_date", last_modified_date)
 
 @register.filter
 def deslug(path):
