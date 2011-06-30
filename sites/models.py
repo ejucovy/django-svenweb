@@ -15,6 +15,15 @@ SESSION_KEY = 'svenweb.sites.site'
 UNSET_KEY = 'svenweb.unset_site'
 SET_KEY = 'svenweb.set_site'
 
+import re
+wiki_link_text = re.compile(r"""                                                                                                                                                               
+        (\(\(   )   # The opening (( of the Wicked link "(?<=" prevents the prefix from returning with the match                                                                          
+        [^)]*            # The initial text (no closing parentheses) of the wicked link                                                                                                        
+        ( \) [^)]+ )*    # Any amount of single closing parentheses with trailing text.                                                                                                        
+                         # If there is no trailing text, this is not a single parentheses                                                                                                      
+        (\)\))         # The closing )) of the Wicked link, "?=" prevents the suffix from returning with the match                                                                           
+    """, re.VERBOSE)
+
 def _create_repo(path):
     cmd = ["bzr", "init", "--create-prefix", path]
     result = subprocess.call(cmd)
@@ -240,6 +249,28 @@ class Wiki(models.Model):
             obj['fields']['timestamp'] = \
                 datetime.datetime.fromtimestamp(timestamp)
         return contents
+
+    def baked_content(self, content):
+        """
+        Applies any transformations to the given page content
+        """
+        def treat_link_text(match):
+            link_text = match.group()[2:-2]
+            from django.template.defaultfilters import slugify
+            href = slugify(link_text)
+            try:
+                self.latest_change(href)
+            except IndexError:
+                exists = False
+            except:
+                raise
+            else:
+                exists = True
+            if exists:
+                return '<a href="%s">%s</a>' % (href, link_text)
+            else:
+                return '<a class="new-page" href="%s">%s +</a>' % (href, link_text)
+        return re.sub(wiki_link_text, treat_link_text, content)        
 
 from django.conf import settings
 

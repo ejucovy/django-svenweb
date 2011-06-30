@@ -351,6 +351,7 @@ def page_view(request, subpath):
     except sven.NoSuchResource:
         return redirect(site.page_edit_url(subpath))
 
+    contents = site.baked_content(contents)
     mimetype = mimetypes.guess_type(subpath)[0]
     return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
 
