@@ -39,7 +39,8 @@ PERMISSION_CONSTRAINTS = {
         },
     }
 
-def get_permission_constraints(policy, role):
+def get_permission_constraints(request, role):
+    policy = request.get_security_policy()
     return PERMISSION_CONSTRAINTS[policy][role]
 
 def get_highest_role(roles):
