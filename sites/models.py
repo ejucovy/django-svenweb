@@ -217,6 +217,7 @@ class Wiki(models.Model):
         return repo.commit(prefix, msg=msg, author=username)
 
     def latest_change(self, path=""):
+        # @@todo: optimize this: only need to fetch one, not all
         repo = BzrAccess(self.repo_path)
         try:
             contents = repo.log(path)
@@ -229,26 +230,6 @@ class Wiki(models.Model):
             obj['fields']['timestamp'] = \
                 datetime.datetime.fromtimestamp(timestamp)
         return contents[0]['fields']
-
-    def last_modified_author(self, path='/'):
-        repo = BzrAccess(self.repo_path)
-        contents = repo.log(path)
-        for obj in contents:
-            timestamp = obj['fields']['timestamp']
-            from wsgiref.handlers import format_date_time
-            obj['fields']['timestamp'] = \
-                format_date_time(timestamp)
-        return contents[0]['fields']['author']
-        
-    def last_modified_date(self, path='/'):
-        repo = BzrAccess(self.repo_path)
-        contents = repo.log(path)
-        for obj in contents:
-            timestamp = obj['fields']['timestamp']
-            import datetime
-            obj['fields']['timestamp'] = \
-                datetime.datetime.fromtimestamp(timestamp)
-        return contents[0]['fields']['timestamp']
         
     def get_history(self, path='/'):
         repo = BzrAccess(self.repo_path)
@@ -370,10 +351,6 @@ PERMISSIONS = (
     ("WIKI_DEPLOY", "manually redeploy the wiki's website"),
     ("WIKI_CONFIGURE", "change wiki settings"),
     )
-
-LOCAL_ROLES = [
-    "WikiManager",
-    ]
 
 _ROLE_RANKING = [
     "ProjectAdmin",
