@@ -15,6 +15,12 @@ here = os.path.abspath(".")
 from svenweb.opencore.permalink import permalink_builder
 WIKI_PERMALINK_BUILDER = permalink_builder
 
+from svenweb.opencore.security import get_permission_constraints
+from svenweb.opencore.security import get_highest_role
+
+SVENWEB_PERMISSION_CONSTRAINT_GETTER = get_permission_constraints
+SVENWEB_HIGHEST_ROLE_FINDER = get_highest_role
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
