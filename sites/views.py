@@ -367,10 +367,11 @@ def page_view(request, subpath):
             url += "?%s" % urllib.urlencode(request.GET.items())
         return redirect(url)
 
-    contents = site.baked_content(contents, content_href=subpath)
     mimetype = mimetypes.guess_type(subpath)[0]
     if site.is_raw_path(subpath):
         return HttpResponse(contents, mimetype=mimetype)
+
+    contents = site.baked_content(contents, content_href=subpath)
 
     return dict(site=site, contents=contents, mimetype=mimetype, path=subpath)
 
