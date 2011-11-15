@@ -99,6 +99,12 @@ class Wiki(models.Model):
                 paths.append(option)
         return paths
 
+    def is_raw_path(self, subpath):
+        for path in self.get_raw_paths():
+            if subpath.startswith(path):
+                return True
+        return False
+
     def wiki_type(self):
         return self.get_option("wiki_type", "managedhtml")
 

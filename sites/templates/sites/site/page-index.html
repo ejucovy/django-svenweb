@@ -14,7 +14,10 @@
 
 {% if "WIKI_CONFIGURE" in request|permissions:site %}
 <form method="POST">
-  <input type="checkbox" name="raw_path" /> Make raw path
+  {% csrf_token %}
+  <input type="checkbox" {% if is_raw_path %}checked="checked"{% endif %} 
+	 name="raw_path" /> 
+  <input type="submit" value="Make raw path" />
 </form>
 {% endif %}
 
