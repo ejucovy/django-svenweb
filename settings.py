@@ -12,11 +12,60 @@ MANAGERS = ADMINS
 import os
 here = os.path.abspath(".")
 
-from svenweb.opencore.permalink import permalink_builder
-WIKI_PERMALINK_BUILDER = permalink_builder
+def WIKI_PERMALINK_BUILDER(wiki, bits):
+    bits = list(bits)
+    bits[1] = [wiki.name.split('/')[1]] + bits[1]
+    return tuple(bits)
 
-from svenweb.opencore.security import get_permission_constraints
-from svenweb.opencore.security import get_highest_role
+def get_permission_constraints(policy_or_request, role):
+    PERMISSION_CONSTRAINTS = {
+    'open_policy': {
+        "Anonymous": ["WIKI_VIEW", "WIKI_HISTORY"],
+        "Authenticated": ["WIKI_VIEW", "WIKI_HISTORY", "WIKI_EDIT"],
+        "ProjectMember": ["WIKI_VIEW", "WIKI_HISTORY",
+                          "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "WikiManager": ["WIKI_VIEW", "WIKI_HISTORY",
+                        "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "ProjectAdmin": ["WIKI_VIEW", "WIKI_HISTORY",
+                         "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        },
+    'medium_policy': {
+        "Anonymous": ["WIKI_VIEW", "WIKI_HISTORY"],
+        "Authenticated": ["WIKI_VIEW", "WIKI_HISTORY"],
+        "ProjectMember": ["WIKI_VIEW", "WIKI_HISTORY",
+                          "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "WikiManager": ["WIKI_VIEW", "WIKI_HISTORY",
+                        "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "ProjectAdmin": ["WIKI_VIEW", "WIKI_HISTORY",
+                         "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        },
+    'closed_policy': {
+        "Anonymous": [],
+        "Authenticated": [],
+        "ProjectMember": ["WIKI_VIEW", "WIKI_HISTORY",
+                          "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "WikiManager": ["WIKI_VIEW", "WIKI_HISTORY",
+                        "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        "ProjectAdmin": ["WIKI_VIEW", "WIKI_HISTORY",
+                         "WIKI_EDIT", "WIKI_CONFIGURE", "WIKI_DEPLOY"],
+        },
+    }
+    if isinstance(policy_or_request, basestring):
+        policy = policy_or_request
+    else:
+        policy = policy_or_request.get_security_policy()
+    return PERMISSION_CONSTRAINTS[policy][role]
+
+def get_highest_role(roles):
+    for role in (
+        "ProjectAdmin",
+        "WikiManager",
+        "ProjectMember",
+        "Authenticated",
+        "Anonymous",
+        ):
+        if role in roles:
+            return role
 
 SVENWEB_PERMISSION_CONSTRAINT_GETTER = get_permission_constraints
 SVENWEB_HIGHEST_ROLE_FINDER = get_highest_role

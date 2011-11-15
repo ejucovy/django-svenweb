@@ -16,7 +16,7 @@
   <select class="asmselect" name="managers" multiple="multiple" 
 	  title="Click to select project members">
     {% for member in request.get_project_members %}
-    <option {% if member == request.user.username %}selected="selected"{% endif %}
+    <option {% if member in wiki_managers %}selected="selected"{% endif %}
 	    value="{{member}}">{{member}}</option>
     {% endfor %}
   </select>
@@ -52,7 +52,7 @@
 	    <li>
 	      <input type="radio" name="member_perms"
 		     id="member_permission_{{permission.0}}"
-		     {% if forloop.last %}checked="checked"{% endif %}
+		     {% if permission.0 == chosen_member_permission %}checked="checked"{% endif %}
 		     value="{{permission.0}}" />
 	      <label for="member_permission_{{permission.0}}">{{permission.1}}</label>
 	    </li>
@@ -68,7 +68,7 @@
 	    <li>
 	      <input type="radio" name="other_perms"
 		     id="other_permission_{{permission.0}}"
-		     {% if forloop.last %}checked="checked"{% endif %}
+		     {% if permission.0 == chosen_nonmember_permission %}checked="checked"{% endif %}
 		     value="{{permission.0}}" />
 	      <label for="other_permission_{{permission.0}}">{{permission.1}}</label>
 	    </li>

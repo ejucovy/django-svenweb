@@ -7,7 +7,7 @@ from svenweb.sites.models import (Wiki,
 def requires_project_admin(func):
     def inner(request, *args, **kw):
         role = request.get_project_role()
-        if role != "ProjectAdmin":
+        if "ProjectAdmin" not in role:
             return HttpResponseForbidden()
         return func(request, *args, **kw)
     return inner
@@ -25,9 +25,9 @@ def home(request):
     policy = request.get_security_policy()
 
     from svenweb.sites.models import PERMISSIONS
-    from svenweb.opencore.security import PERMISSION_CONSTRAINTS
-    member_constraints = PERMISSION_CONSTRAINTS[policy]["ProjectMember"]
-    other_constraints = PERMISSION_CONSTRAINTS[policy]["Authenticated"]
+    from svenweb.opencore.security import get_permission_constraints
+    member_constraints = get_permission_constraints(policy, "ProjectMember")
+    other_constraints = get_permission_constraints(policy, "Authenticated")
 
     _member_permissions = [i for i in PERMISSIONS
                            if i[0] in member_constraints]
@@ -49,9 +49,17 @@ def home(request):
         other_permissions.append((i, prefix + _other_permissions[i][1]))
     
     return {'wikis': wikis, 'project': project,
+            'wiki_managers': [request.user.username],
             'member_permissions': member_permissions,
             'other_permissions': other_permissions,
+            'chosen_member_permission': member_permissions[-1][0],
+            'chosen_nonmember_permission': other_permissions[-1][0],
             }
+
+def wiki_settings(request):
+    wiki = request.site
+    wiki_managers = UserWikiLocalRoles(wiki=site, roles__contains="WikiManager")
+    return dict(wiki_managers=wiki_managers)
 
 @requires_project_admin
 @allow_http("POST")
@@ -72,8 +80,9 @@ def create_wiki(request):
     member_permissions = int(request.POST.get("member_perms", "-1"))
     other_permissions = int(request.POST.get("other_perms", "-1"))
 
-    from svenweb.sites.models import (get_permission_constraints, PERMISSIONS,
+    from svenweb.sites.models import (PERMISSIONS,
                                       WikiRolePermissions)
+    from svenweb.opencore.security import get_permission_constraints
 
     member_permissions = PERMISSIONS[:member_permissions + 1]
     other_permissions = PERMISSIONS[:other_permissions + 1]
