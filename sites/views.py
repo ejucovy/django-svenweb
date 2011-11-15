@@ -323,7 +323,7 @@ def page_history_version(request, subpath):
 
 
 @requires("WIKI_VIEW")
-@allow_http("GET")
+@allow_http("GET", "POST")
 @rendered_with("sites/site/page-index.html")
 def page_index(request, subpath):
     site = request.site
@@ -335,8 +335,21 @@ def page_index(request, subpath):
     except sven.NoSuchResource:
         return redirect(site.page_edit_url(subpath))
 
+    if request.method == "POST":
+        return _page_set_property(request, subpath)
+
+    is_raw_path = subpath in site.get_raw_paths()
+
     # @@todo: maybe check for user-supplied index page?
-    return dict(site=site, path=subpath, subpaths=subpaths)
+    return dict(site=site, path=subpath, subpaths=subpaths, is_raw_path=is_raw_path)
+
+@requires("WIKI_CONFIGURE")
+@allow_http("POST")
+def _page_set_property(request, subpath):
+    site = request.site
+    if "raw_path" in request.POST:
+        site.add_raw_path(subpath)
+    return redirect(".")
 
 @requires("WIKI_VIEW")
 @allow_http("GET")
