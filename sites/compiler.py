@@ -21,6 +21,8 @@ def managed_html_wiki_compiler(export_path, wiki):
         if root.startswith(os.path.join(
                 export_path, wiki.raw_files_path.lstrip('/'))):
             continue
+        if wiki.is_raw_path(root):
+            continue
         for file in files:
             if file.endswith(".html"):
                 continue
