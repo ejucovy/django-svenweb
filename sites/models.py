@@ -42,15 +42,15 @@ class Wiki(models.Model):
     def __unicode__(self):
         return self.name
 
-    def set_options(self, kwargs):
+    def set_options(self, kwargs, section="options"):
         if not self.config:
-            self.config = "[options]"
+            self.config = "[%s]" % section
         config = RawConfigParser()
         fp = StringIO(self.config)
         config.readfp(fp)
 
         for key, val in kwargs.items():
-            config.set("options", key, val)
+            config.set(section, key, val)
 
         fp = StringIO()
         config.write(fp)
@@ -58,13 +58,13 @@ class Wiki(models.Model):
         self.config = fp.read()
         self.save()
 
-    def get_option(self, key, default=NoDefault, asbool=False):
+    def get_option(self, key, default=NoDefault, asbool=False, section="options"):
         config = RawConfigParser()
         fp = StringIO(self.config)
 
         config.readfp(fp)
         try:
-            value = config.get("options", key)
+            value = config.get(section, key)
         except (NoOptionError, NoSectionError):
             if default is NoDefault:
                 raise
@@ -80,6 +80,30 @@ class Wiki(models.Model):
             return False
         else:
             raise TypeError("Cannot convert to bool: %s" % value)
+
+    def add_raw_path(self, path):
+        self.set_options({path: "raw"}, section="path_properties")
+
+    def get_raw_paths(self):
+        config = RawConfigParser()
+        fp = StringIO(self.config)
+
+        config.readfp(fp)
+        try:
+            value = config.options("path_properties")
+        except (NoOptionError, NoSectionError):
+            return []
+        paths = []
+        for option in value:
+            if config.get("path_properties", option) == "raw":
+                paths.append(option)
+        return paths
+
+    def is_raw_path(self, subpath):
+        for path in self.get_raw_paths():
+            if subpath.startswith(path):
+                return True
+        return False
 
     def wiki_type(self):
         return self.get_option("wiki_type", "managedhtml")
