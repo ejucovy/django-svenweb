@@ -49,6 +49,9 @@ class Wiki(models.Model):
         fp = StringIO(self.config)
         config.readfp(fp)
 
+        if not config.has_section(section):
+            config.add_section(section)
+
         for key, val in kwargs.items():
             config.set(section, key, val)
 
