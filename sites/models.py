@@ -314,6 +314,7 @@ from django.conf import settings
 
 class UserProfile(models.Model):
     user = models.ForeignKey(User)
+    config = models.TextField()
 
     @property
     def github_username(self):
