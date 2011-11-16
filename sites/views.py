@@ -131,6 +131,8 @@ def user_account(request):
         'profile': profile,
         'message': message,
         'redirect_to': redirect_to,
+        'path': '/',
+        'site': request.site,
         }
 
 @requires("WIKI_CONFIGURE")
@@ -146,7 +148,7 @@ def deploy(request):
         site.set_options(options)
         return redirect(".")
 
-    return dict(site=site)
+    return dict(site=site, path='/')
 
 @allow_http("POST")
 def create_github_repo(request):
