@@ -223,3 +223,9 @@ LOGGING = {
 }
 
 SVENWEB_REPO_PATH = '/srv/wiki.socialplanning.org/var/repos'
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
+
