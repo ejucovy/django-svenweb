@@ -144,6 +144,7 @@ def deploy(request):
     if request.method == "POST":
         options = {'custom_domain': request.POST.get("custom_domain", ''),
                    'github_repo': request.POST.get("github_repo", ''),
+                   'deploy_path': request.POST.get("deploy_path", ''),
                    }
         site.set_options(options)
         return redirect(".")
@@ -241,6 +242,22 @@ def deploy_to_github(request):
     import glob
     curdir = os.getcwd()
 
+    try:
+        _deploy_to_github(request)
+    finally:
+        os.chdir(curdir)
+
+    return redirect(site.deploy_dashboard_url())
+
+
+def _deploy_to_github(request):
+    site = request.site
+
+    import subprocess
+    import os
+    import tempfile
+    import shutil
+    import glob
     checkout_path = tempfile.mkdtemp()
     os.chdir(checkout_path)
 
@@ -278,11 +295,7 @@ def deploy_to_github(request):
     subprocess.call(["git", "commit", 
                      "-m", "pushing to github"])
     subprocess.call(["git", "push"])
-
-    os.chdir(curdir)
     shutil.rmtree(checkout_path)
-
-    return redirect(site.deploy_dashboard_url())
 
 @requires("WIKI_HISTORY")
 @allow_http("GET")

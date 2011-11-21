@@ -36,12 +36,21 @@
     Github Repo (leave blank for no deployments to Github):
     <input size="100" type="text" name="github_repo" value="{{site.github.repo}}"/>
   </p>
+  <p>
+    <a class="help" href="#path-help"
+       title="Type in the subpath on your wiki that you want to deploy to the root of your website. If blank, your entire wiki structure will be deployed."></a>
+    Path To Deploy (leave blank for full wiki deployment):
+    <input size="100" type="text" name="deploy_path" value="{{site.deploy_path}}"/>
+  </p>
   <input type="submit" />
 </form>
 
 <div style="display: none;">
   <div id="fqdn-help">
     Examples: 'somanywhales.com'; 'www.somanywhales.com'; or 'my.site.somanywhales.com'.
+  </div>
+  <div id="path-help">
+    For example, if you have a wiki with files like /website/index.html and /website/contents/1/ and other files under /internal/ you can enter "/website/" here to have the site's /index.html be created from your wiki's /website/index.html and all files not under /website/ will be passed over altogether.
   </div>
 </div>
 

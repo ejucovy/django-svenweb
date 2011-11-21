@@ -34,6 +34,42 @@ def managed_html_wiki_compiler(export_path, wiki):
 
     return export_path
 
+def canonical_path(path):
+    path = path.strip("/")
+    path = "/" + path
+    if not path.endswith("/"):
+        path = path + "/"
+    return path
+
+def deploy_from_subpath_compiler(export_path, wiki):
+    renamed = []
+    removed = []
+    deploy_path = canonical_path(wiki.deploy_path())
+    if deploy_path == "/":
+        return
+
+    for root, dirs, files in os.walk(export_path):
+        current_path = canonical_path(root[len(export_path):])
+
+        for file in files:
+            original_full_path = os.path.join(root, file)
+            if not current_path.startswith(deploy_path):
+                os.unlink(original_full_path)
+                removed.append(original_full_path)
+                continue
+            trimmed_path = current_path[len(deploy_path):]
+            new_parent_path = os.path.join(export_path, trimmed_path)
+            new_full_path = os.path.join(new_parent_path, file)
+            if not os.path.exists(new_parent_path):
+                os.makedirs(new_parent_path)
+            os.rename(original_full_path, new_full_path)
+            renamed.append((original_full_path, new_full_path))
+
+    print renamed
+    print removed
+    return export_path
+    
+
 class WikiCompiler(object):
     """
     Adapts wiki objects
@@ -58,6 +94,8 @@ class WikiCompiler(object):
             pass
         if self.wiki_type() == "managedhtml":
             managed_html_wiki_compiler(export_path, self.wiki)
+
+        deploy_from_subpath_compiler(export_path, self.wiki)
 
         os.chdir(curdir)
         return export_path
