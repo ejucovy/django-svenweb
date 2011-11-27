@@ -47,7 +47,7 @@ def theme(request):
     site = request.site
 
     if request.method == "GET":
-        return {}
+        return {'path': '/', 'site': site}
 
     theme_url = request.POST['theme_url']
     theme_name = request.POST['theme_name']
