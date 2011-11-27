@@ -25,6 +25,7 @@ def managed_html_wiki_compiler(export_path, compiler):
         if root.startswith(os.path.join(
                 export_path, raw_files_path)):
             continue
+
         wiki_path = canonical_path(root[len(export_path):])
         print "%s -- raw path? %s" % (wiki_path, wiki.is_raw_path(wiki_path))
         print wiki.get_raw_paths()
@@ -73,9 +74,12 @@ def managed_html_wiki_compiler(export_path, compiler):
                 return Response(fp.read(), content_type="text/html")(environ, start_response)
 
         from deliverance.middleware import make_deliverance_middleware
+        rule_filename = os.path.join(export_path.rstrip('/'),
+                                     theme_path.lstrip('/'), "rules.xml")
+
         app = make_deliverance_middleware(
             wsgi_app, {}, debug=True,
-            rule_filename="/home/egj/Code/cel/svenweb/rules.xml", 
+            rule_filename=rule_filename,
             theme_uri=theme_uri)
 
         from paste.urlmap import URLMap
@@ -89,8 +93,9 @@ def managed_html_wiki_compiler(export_path, compiler):
                 })
 
         for orig, new in renamed:
-            resp = app.get("%s/%s" % (script_name, 
-                                      new.lstrip("/")))
+            url = "%s/%s" % (script_name, new.lstrip("/"))
+            print "Fetching %s" % url
+            resp = app.get(url)
             fp = open(os.path.join(export_path.rstrip('/'), new.lstrip('/')), 'w')
             fp.write(resp.body)
             fp.close()
@@ -149,11 +154,11 @@ class WikiCompiler(object):
         """ Return (HTTP_HOST, SCRIPT_NAME) """
         domain = self.wiki.custom_domain()
         if domain:
-            return (domain, '')
+            return (str(domain), '')
         repo = self.wiki.github.repo()
         if repo:
             container, repo = repo.split('/')
-            return (container, '/%s' % repo)
+            return (str(container), '/%s' % repo)
         raise TypeError("This wiki doesn't know where it's going")
 
     def compile(self):
