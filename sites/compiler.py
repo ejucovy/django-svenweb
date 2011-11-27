@@ -31,6 +31,7 @@ def managed_html_wiki_compiler(export_path, compiler):
         print wiki.get_raw_paths()
         if wiki.is_raw_path(wiki_path):
             continue
+
         for file in files:
             if file.endswith(".html"):
                 continue
