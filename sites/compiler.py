@@ -93,13 +93,23 @@ def managed_html_wiki_compiler(export_path, compiler):
                 "HTTP_HOST": http_host,
                 })
 
-        for orig, new in renamed:
-            url = "%s/%s" % (script_name, new.lstrip("/"))
-            print "Fetching %s" % url
-            resp = app.get(url)
-            fp = open(os.path.join(export_path.rstrip('/'), new.lstrip('/')), 'w')
-            fp.write(resp.body)
-            fp.close()
+        for root, dirs, files in os.walk(export_path):
+            if root.startswith(os.path.join(
+                    export_path, raw_files_path)):
+                continue
+
+            wiki_path = canonical_path(root[len(export_path):])
+            if wiki.is_raw_path(wiki_path):
+                continue
+            
+            for file in files:
+                new = (root[len(export_path):] + '/' + file)
+                url = "%s/%s" % (script_name, new.lstrip("/"))
+                print "Fetching %s" % url
+                resp = app.get(url)
+                fp = open(os.path.join(export_path.rstrip('/'), new.lstrip('/')), 'w')
+                fp.write(resp.body)
+                fp.close()
 
     return export_path
 
