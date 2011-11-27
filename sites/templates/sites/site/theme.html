@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Configure theming: <a href="{{site.site_home_url}}">{{site.name}}</a></h1>
+
+<h2>Theming settings</h2>
+<form method="POST" action=".">
+  {% csrf_token %}
+  <p>
+    <a class="help" href="#fqdn-help"
+       title="Enter the fully-qualified domain name. No http:// prefix."></a>
+    URL of theme to fetch:
+    <input size="100" type="text" name="theme_url" value=""/>
+  </p>
+  <p>
+    <a class="help" 
+       href="/static/images/github-repo.png" 
+       title="Type in the path identifying your Github Repo.  This will usually be your usename, followed by a slash, followed by the name of the repo."></a>
+    Theme name:
+    <input size="100" type="text" name="theme_name" value=""/>
+  </p>
+  <input type="submit" />
+</form>
+
+{% endblock %}

@@ -1,0 +1,6 @@
+<ruleset>
+  <match path="/b/" class="notheme" />
+  <rule class="default">
+    <replace theme="#oc-content-main" content="div#content" />
+  </rule>
+</ruleset>

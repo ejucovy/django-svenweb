@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 
+{% load repo %}
+
 {% block content %}
-{{contents|safe}}
+<h1 id="oc-wiki-title">{{path}}</h1>
+
+<div id="oc-wiki-content">
+{{content|safe}}
+</div>
+
 {% endblock %}

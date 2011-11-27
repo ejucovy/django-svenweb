@@ -1,6 +1,7 @@
 Django
 djangohelpers
 -e git+git@github.com:socialplanning/sven.git#egg=sven
+-e git+git@github.com:deliverance/Deliverance.git#egg=deliverance
 bzr
 gunicorn
 http://pypi.python.org/packages/source/r/restclient/restclient-0.10.1.tar.gz
