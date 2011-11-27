@@ -52,6 +52,7 @@ def theme(request):
     theme_url = request.POST['theme_url']
     theme_name = request.POST['theme_name']
     site.themer.fetch_theme(theme_url, theme_name)
+    site.set_options(dict(theme_name=theme_name))
     return redirect(".")
 
 @allow_http("GET", "POST")
@@ -288,9 +289,7 @@ def _deploy_to_github(request):
         elif os.path.isdir(file):
             shutil.rmtree(file)
 
-    os.chdir(curdir)
     export_path = site.compiler.compile()
-    print export_path
 
     from distutils.dir_util import copy_tree
     copy_tree(export_path, checkout_path)
