@@ -24,6 +24,13 @@ wiki_link_text = re.compile(r"""
         (\)\))         # The closing )) of the Wicked link, "?=" prevents the suffix from returning with the match                                                                           
     """, re.VERBOSE)
 
+def canonical_path(path):
+    path = path.strip("/")
+    path = "/" + path
+    if not path.endswith("/"):
+        path = path + "/"
+    return path
+
 def _create_repo(path):
     cmd = ["bzr", "init", "--create-prefix", path]
     result = subprocess.call(cmd)
@@ -105,6 +112,8 @@ class Wiki(models.Model):
     def is_raw_path(self, subpath):
         for path in self.get_raw_paths():
             if subpath.startswith(path):
+                return True
+            if canonical_path(subpath).startswith(canonical_path(path)):
                 return True
         return False
 
