@@ -523,6 +523,9 @@ def page_edit(request, subpath):
 
         msg = request.POST.get("comment") or None
 
+        if isinstance(contents, unicode):
+            contents = contents.encode("utf8")
+                
         site.write_page(subpath, contents, 
                         msg=msg,
                         username=request.user.username)
